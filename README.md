@@ -3,7 +3,7 @@
 An AI-powered web application that analyzes medical reports and explains complex medical terminology in simple, easy-to-understand language.
 
 ## Live Demo
-🔗 Coming soon (deploying to Render)
+🔗 https://mediscan-ai-medical-report-analyzer.onrender.com
 
 ## Problem Statement
 Most people receive medical reports but cannot understand what the values mean or whether they are at risk. MediScan AI bridges this gap by providing instant, clear explanations powered by advanced AI.
