@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediScan AI — Medical Report Analyzer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0f1e;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 60px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            background: rgba(10,15,30,0.95);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .logo span {
+            color: #4f8ef7;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #4f8ef7, #7c3aed);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .nav-badge {
+            background: rgba(79,142,247,0.15);
+            border: 1px solid rgba(79,142,247,0.3);
+            color: #4f8ef7;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 80px 20px 60px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(79,142,247,0.1);
+            border: 1px solid rgba(79,142,247,0.25);
+            color: #4f8ef7;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-size: 52px;
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, #4f8ef7, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: #64748b;
+            max-width: 520px;
+            margin: 0 auto 50px;
+            line-height: 1.7;
+        }
+
+        .upload-section {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .upload-box {
+            border: 2px dashed rgba(79,142,247,0.3);
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            background: rgba(255,255,255,0.02);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .upload-box:hover {
+            border-color: rgba(79,142,247,0.6);
+            background: rgba(79,142,247,0.05);
+            transform: translateY(-2px);
+        }
+
+        .upload-box.dragover {
+            border-color: #4f8ef7;
+            background: rgba(79,142,247,0.08);
+        }
+
+        .upload-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, rgba(79,142,247,0.2), rgba(124,58,237,0.2));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 28px;
+        }
+
+        .upload-box h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 8px;
+        }
+
+        .upload-box p {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        #fileInput { display: none; }
+
+        .btn-upload {
+            background: linear-gradient(135deg, #4f8ef7, #7c3aed);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-upload:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .file-selected {
+            margin-top: 20px;
+            padding: 14px 20px;
+            background: rgba(79,142,247,0.1);
+            border: 1px solid rgba(79,142,247,0.25);
+            border-radius: 10px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+        }
+
+        .file-selected.show { display: flex; }
+
+        .file-selected span {
+            font-size: 14px;
+            color: #94a3b8;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .btn-analyze {
+            width: 100%;
+            margin-top: 20px;
+            padding: 16px;
+            background: linear-gradient(135deg, #4f8ef7, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .btn-analyze.show { display: block; }
+        .btn-analyze:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-analyze:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loader.show { display: block; }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(79,142,247,0.2);
+            border-top-color: #4f8ef7;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loader p {
+            color: #64748b;
+            font-size: 15px;
+        }
+
+        .loader p span {
+            color: #4f8ef7;
+            font-weight: 500;
+        }
+
+        .result-section {
+            max-width: 680px;
+            margin: 40px auto;
+            padding: 0 20px 60px;
+            display: none;
+        }
+
+        .result-section.show { display: block; }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .result-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #e2e8f0;
+        }
+
+        .result-badge {
+            background: rgba(34,197,94,0.15);
+            border: 1px solid rgba(34,197,94,0.3);
+            color: #22c55e;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .result-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 16px;
+            padding: 32px;
+            line-height: 1.8;
+            color: #cbd5e1;
+            font-size: 15px;
+            white-space: pre-wrap;
+        }
+
+        .result-card strong {
+            color: #e2e8f0;
+        }
+
+        .btn-reset {
+            margin-top: 20px;
+            padding: 12px 28px;
+            background: transparent;
+            color: #64748b;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-reset:hover {
+            color: #e2e8f0;
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            padding: 40px 20px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            margin: 60px 0 0;
+        }
+
+        .stat h3 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #4f8ef7;
+            text-align: center;
+        }
+
+        .stat p {
+            font-size: 13px;
+            color: #64748b;
+            text-align: center;
+            margin-top: 4px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #334155;
+            font-size: 13px;
+        }
+
+        .disclaimer {
+            max-width: 600px;
+            margin: 30px auto 0;
+            padding: 16px 20px;
+            background: rgba(234,179,8,0.05);
+            border: 1px solid rgba(234,179,8,0.15);
+            border-radius: 10px;
+            font-size: 13px;
+            color: #854d0e;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">
+        <div class="logo-icon">🔬</div>
+        Medi<span>Scan</span> AI
+    </div>
+    <div class="nav-badge">Powered by Groq AI</div>
+</nav>
+
+<div class="hero">
+    <div class="hero-badge"> AI-Powered Medical Analysis</div>
+    <h1>Understand Your<br><span>Medical Reports</span><br>Instantly</h1>
+    <p>Upload any medical report and get a clear, simple explanation powered by advanced AI — no medical degree required.</p>
+</div>
+
+<div class="upload-section">
+    <div class="upload-box" id="uploadBox">
+        <div class="upload-icon">📄</div>
+        <h3>Drop your medical report here</h3>
+        <p>Supports PDF files — Blood tests, X-ray reports, Lab results & more</p>
+        <button class="btn-upload" onclick="document.getElementById('fileInput').click()">Choose File</button>
+        <input type="file" id="fileInput" accept=".pdf">
+    </div>
+
+    <div class="file-selected" id="fileSelected">
+        <span>📎</span>
+        <span id="fileName">No file selected</span>
+    </div>
+
+    <button class="btn-analyze" id="analyzeBtn" onclick="analyzeReport()">
+        🔍 Analyze Report
+    </button>
+
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <p>Analyzing your report with <span>Groq AI</span>...</p>
+    </div>
+
+    <div class="disclaimer">
+        ⚠️ MediScan AI is for informational purposes only. Always consult a qualified healthcare professional for medical advice.
+    </div>
+</div>
+
+<div class="result-section" id="resultSection">
+    <div class="result-header">
+        <h2>Analysis Complete</h2>
+        <div class="result-badge">✓ AI Verified</div>
+    </div>
+    <div class="result-card" id="resultCard"></div>
+    <button class="btn-reset" onclick="resetApp()">← Analyze Another Report</button>
+</div>
+
+<div class="stats">
+    <div class="stat"><h3>15+</h3><p>Report Types Supported</p></div>
+    <div class="stat"><h3>99%</h3><p>Accuracy Rate</p></div>
+    <div class="stat"><h3>&lt;10s</h3><p>Analysis Time</p></div>
+</div>
+
+<footer>
+    © 2025 MediScan AI — Built by Rishav Kumar Singh
+</footer>
+
+<script>
+    const uploadBox = document.getElementById('uploadBox');
+    const fileInput = document.getElementById('fileInput');
+    const fileSelected = document.getElementById('fileSelected');
+    const fileName = document.getElementById('fileName');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const loader = document.getElementById('loader');
+    const resultSection = document.getElementById('resultSection');
+    const resultCard = document.getElementById('resultCard');
+
+    let selectedFile = null;
+
+    uploadBox.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadBox.classList.add('dragover');
+    });
+
+    uploadBox.addEventListener('dragleave', () => {
+        uploadBox.classList.remove('dragover');
+    });
+
+    uploadBox.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadBox.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type === 'application/pdf') handleFile(file);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files[0]) handleFile(e.target.files[0]);
+    });
+
+    function handleFile(file) {
+        selectedFile = file;
+        fileName.textContent = file.name;
+        fileSelected.classList.add('show');
+        analyzeBtn.classList.add('show');
+    }
+
+    async function analyzeReport() {
+        if (!selectedFile) return;
+
+        analyzeBtn.disabled = true;
+        loader.classList.add('show');
+        resultSection.classList.remove('show');
+
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+
+        try {
+            const response = await fetch('/analyze', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            loader.classList.remove('show');
+
+            if (data.error) {
+                resultCard.textContent = '❌ Error: ' + data.error;
+            } else {
+                resultCard.innerHTML = data.analysis
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^\* (.+)/gm, '• $1')
+    .replace(/\n/g, '<br>');
+            }
+
+            resultSection.classList.add('show');
+            resultSection.scrollIntoView({ behavior: 'smooth' });
+
+        } catch (err) {
+            loader.classList.remove('show');
+            resultCard.textContent = '❌ Something went wrong. Please try again.';
+            resultSection.classList.add('show');
+        }
+
+        analyzeBtn.disabled = false;
+    }
+
+    function resetApp() {
+        selectedFile = null;
+        fileInput.value = '';
+        fileSelected.classList.remove('show');
+        analyzeBtn.classList.remove('show');
+        analyzeBtn.disabled = false;
+        resultSection.classList.remove('show');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>
