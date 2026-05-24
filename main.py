@@ -31,17 +31,33 @@ async def analyze_report(file: UploadFile = File(...)):
     
     # Send to Groq AI
     prompt = f"""
-    You are a medical expert assistant. Analyze this medical report and provide:
+    You are a senior medical expert with 20 years of experience explaining medical reports to patients.
     
-    1. Simple Summary: Explain what this report is about in simple language anyone can understand
-    2. Key Findings: List the important values and what they mean
-    3. Risk Flags: Highlight anything that is abnormal or needs attention
-    4. Recommendations: What should the patient discuss with their doctor
+    Analyze this medical report thoroughly and provide:
     
-    Be clear, compassionate, and avoid complex medical jargon.
+    1. **Simple Summary**: In 2-3 sentences, explain what this report is about in simple language a 10-year-old can understand.
+    
+    2. **Key Findings**: List every important value found. For each value state:
+       - The parameter name
+       - The reported value
+       - Whether it is Normal, Low, or High
+       - What it means for the patient's health
+    
+    3. **Risk Flags**: List any abnormal values or concerning patterns. For each risk:
+       - Clearly state what is abnormal
+       - Explain the potential health consequence
+       - Rate severity as Mild, Moderate, or Severe
+    
+    4. **Positive Findings**: Mention any values that are healthy and reassure the patient.
+    
+    5. **Recommendations**: Give 3-5 specific, actionable steps the patient should take including lifestyle changes and what to discuss with their doctor.
+    
+    6. **Urgency Level**: State whether this report needs Immediate Attention, Follow-up Within a Week, Routine Follow-up, or No Immediate Action needed.
+    
+    Be compassionate, clear, and avoid complex medical jargon. Always remind the patient to consult their doctor.
     
     Medical Report:
-    {text[:3000]}
+    {text[:4000]}
     """
     
     chat_completion = client.chat.completions.create(

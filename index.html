@@ -37,9 +37,7 @@
             color: #fff;
         }
 
-        .logo span {
-            color: #4f8ef7;
-        }
+        .logo span { color: #4f8ef7; }
 
         .logo-icon {
             width: 32px;
@@ -49,7 +47,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
         }
 
         .nav-badge {
@@ -172,10 +172,7 @@
             transition: all 0.3s ease;
         }
 
-        .btn-upload:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-        }
+        .btn-upload:hover { opacity: 0.9; transform: translateY(-1px); }
 
         .file-selected {
             margin-top: 20px;
@@ -239,14 +236,19 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .loader p {
-            color: #64748b;
-            font-size: 15px;
-        }
+        .loader p { color: #64748b; font-size: 15px; }
+        .loader p span { color: #4f8ef7; font-weight: 500; }
 
-        .loader p span {
-            color: #4f8ef7;
-            font-weight: 500;
+        .disclaimer {
+            max-width: 600px;
+            margin: 30px auto 0;
+            padding: 16px 20px;
+            background: rgba(234,179,8,0.05);
+            border: 1px solid rgba(234,179,8,0.15);
+            border-radius: 10px;
+            font-size: 13px;
+            color: #854d0e;
+            text-align: center;
         }
 
         .result-section {
@@ -292,12 +294,28 @@
             white-space: pre-wrap;
         }
 
-        .result-card strong {
-            color: #e2e8f0;
+        .result-card strong { color: #e2e8f0; }
+
+        .btn-export {
+            width: 100%;
+            margin-top: 16px;
+            padding: 14px;
+            background: transparent;
+            color: #4f8ef7;
+            border: 1px solid rgba(79,142,247,0.4);
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
         }
 
+        .btn-export:hover { background: rgba(79,142,247,0.08); }
+
         .btn-reset {
-            margin-top: 20px;
+            width: 100%;
+            margin-top: 12px;
             padding: 12px 28px;
             background: transparent;
             color: #64748b;
@@ -306,11 +324,55 @@
             font-size: 14px;
             cursor: pointer;
             transition: all 0.3s ease;
+            display: block;
         }
 
-        .btn-reset:hover {
+        .btn-reset:hover { color: #e2e8f0; border-color: rgba(255,255,255,0.2); }
+
+        .history-section {
+            max-width: 680px;
+            margin: 0 auto 40px;
+            padding: 0 20px;
+            display: none;
+        }
+
+        .history-section h2 {
+            font-size: 20px;
+            font-weight: 700;
             color: #e2e8f0;
-            border-color: rgba(255,255,255,0.2);
+            margin-bottom: 16px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 20px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: rgba(79,142,247,0.08);
+            border-color: rgba(79,142,247,0.3);
+        }
+
+        .history-icon { font-size: 24px; }
+
+        .history-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #e2e8f0;
+        }
+
+        .history-date {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
         }
 
         .stats {
@@ -343,32 +405,21 @@
             color: #334155;
             font-size: 13px;
         }
-
-        .disclaimer {
-            max-width: 600px;
-            margin: 30px auto 0;
-            padding: 16px 20px;
-            background: rgba(234,179,8,0.05);
-            border: 1px solid rgba(234,179,8,0.15);
-            border-radius: 10px;
-            font-size: 13px;
-            color: #854d0e;
-            text-align: center;
-        }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
 <nav>
     <div class="logo">
-        <div class="logo-icon">🔬</div>
+        <div class="logo-icon">M</div>
         Medi<span>Scan</span> AI
     </div>
     <div class="nav-badge">Powered by Groq AI</div>
 </nav>
 
 <div class="hero">
-    <div class="hero-badge"> AI-Powered Medical Analysis</div>
+    <div class="hero-badge">AI-Powered Medical Analysis</div>
     <h1>Understand Your<br><span>Medical Reports</span><br>Instantly</h1>
     <p>Upload any medical report and get a clear, simple explanation powered by advanced AI — no medical degree required.</p>
 </div>
@@ -387,9 +438,7 @@
         <span id="fileName">No file selected</span>
     </div>
 
-    <button class="btn-analyze" id="analyzeBtn" onclick="analyzeReport()">
-        🔍 Analyze Report
-    </button>
+    <button class="btn-analyze" id="analyzeBtn" onclick="analyzeReport()">Analyze Report</button>
 
     <div class="loader" id="loader">
         <div class="spinner"></div>
@@ -397,17 +446,23 @@
     </div>
 
     <div class="disclaimer">
-        ⚠️ MediScan AI is for informational purposes only. Always consult a qualified healthcare professional for medical advice.
+        MediScan AI is for informational purposes only. Always consult a qualified healthcare professional for medical advice.
     </div>
 </div>
 
 <div class="result-section" id="resultSection">
     <div class="result-header">
         <h2>Analysis Complete</h2>
-        <div class="result-badge">✓ AI Verified</div>
+        <div class="result-badge">AI Verified</div>
     </div>
     <div class="result-card" id="resultCard"></div>
-    <button class="btn-reset" onclick="resetApp()">← Analyze Another Report</button>
+    <button class="btn-export" onclick="exportPDF()">Download Analysis</button>
+    <button class="btn-reset" onclick="resetApp()">Analyze Another Report</button>
+</div>
+
+<div class="history-section" id="historySection">
+    <h2>Recent Reports</h2>
+    <div id="historyList"></div>
 </div>
 
 <div class="stats">
@@ -416,9 +471,7 @@
     <div class="stat"><h3>&lt;10s</h3><p>Analysis Time</p></div>
 </div>
 
-<footer>
-    © 2025 MediScan AI — Built by Rishav Kumar Singh
-</footer>
+<footer>© 2025 MediScan AI — Built by Rishav Kumar Singh</footer>
 
 <script>
     const uploadBox = document.getElementById('uploadBox');
@@ -429,8 +482,11 @@
     const loader = document.getElementById('loader');
     const resultSection = document.getElementById('resultSection');
     const resultCard = document.getElementById('resultCard');
+    const historySection = document.getElementById('historySection');
+    const historyList = document.getElementById('historyList');
 
     let selectedFile = null;
+    let reportHistory = [];
 
     uploadBox.addEventListener('dragover', (e) => {
         e.preventDefault();
@@ -476,16 +532,16 @@
             });
 
             const data = await response.json();
-
             loader.classList.remove('show');
 
             if (data.error) {
-                resultCard.textContent = '❌ Error: ' + data.error;
+                resultCard.innerHTML = 'Error: ' + data.error;
             } else {
                 resultCard.innerHTML = data.analysis
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/^\* (.+)/gm, '• $1')
-    .replace(/\n/g, '<br>');
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/^\* (.+)/gm, '• $1')
+                    .replace(/\n/g, '<br>');
+                saveToHistory(selectedFile.name, data.analysis);
             }
 
             resultSection.classList.add('show');
@@ -493,11 +549,105 @@
 
         } catch (err) {
             loader.classList.remove('show');
-            resultCard.textContent = '❌ Something went wrong. Please try again.';
+            resultCard.innerHTML = 'Something went wrong. Please try again.';
             resultSection.classList.add('show');
         }
 
         analyzeBtn.disabled = false;
+    }
+
+    function saveToHistory(name, analysis) {
+        reportHistory.unshift({
+            fileName: name,
+            analysis: analysis,
+            date: new Date().toLocaleString()
+        });
+        if (reportHistory.length > 5) reportHistory.pop();
+        renderHistory();
+    }
+
+    function renderHistory() {
+        historySection.style.display = 'block';
+        historyList.innerHTML = reportHistory.map((entry, index) => `
+            <div class="history-item" onclick="loadHistory(${index})">
+                <div class="history-icon">📋</div>
+                <div>
+                    <div class="history-name">${entry.fileName}</div>
+                    <div class="history-date">${entry.date}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function loadHistory(index) {
+        const entry = reportHistory[index];
+        resultCard.innerHTML = entry.analysis
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/^\* (.+)/gm, '• $1')
+            .replace(/\n/g, '<br>');
+        resultSection.classList.add('show');
+        resultSection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function exportPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Header
+        doc.setFillColor(10, 15, 30);
+        doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor(79, 142, 247);
+        doc.setFontSize(22);
+        doc.setFont('helvetica', 'bold');
+        doc.text('MediScan AI', 20, 20);
+        doc.setFontSize(11);
+        doc.setTextColor(150, 150, 170);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Medical Report Analysis', 20, 30);
+        doc.text('Generated: ' + new Date().toLocaleString(), 20, 38);
+
+        // Divider
+        doc.setDrawColor(79, 142, 247);
+        doc.setLineWidth(0.5);
+        doc.line(20, 44, 190, 44);
+
+        // Content
+        doc.setTextColor(30, 30, 30);
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+
+        const content = resultCard.innerText;
+        const lines = doc.splitTextToSize(content, 170);
+        
+        let y = 54;
+        lines.forEach(line => {
+            if (y > 270) {
+                doc.addPage();
+                y = 20;
+            }
+            if (line.startsWith('1.') || line.startsWith('2.') || line.startsWith('3.') || 
+                line.startsWith('4.') || line.startsWith('5.') || line.startsWith('6.')) {
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(79, 142, 247);
+            } else {
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(30, 30, 30);
+            }
+            doc.text(line, 20, y);
+            y += 7;
+        });
+
+        // Footer
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(9);
+            doc.setTextColor(150, 150, 150);
+            doc.text('MediScan AI — For informational purposes only. Consult your doctor.', 20, 285);
+            doc.text('Page ' + i + ' of ' + pageCount, 180, 285);
+        }
+
+        doc.save('MediScan-Analysis.pdf');
     }
 
     function resetApp() {
