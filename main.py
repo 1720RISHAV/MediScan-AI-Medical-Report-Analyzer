@@ -1,35 +1,106 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, Depends, HTTPException, status
 from fastapi.responses import HTMLResponse
-import fitz  # pymupdf
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
+from datetime import datetime, timedelta
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+from pydantic import BaseModel
+import fitz
 import os
 from dotenv import load_dotenv
 from groq import Groq
+from database import create_tables, get_db, User, ReportHistory
 
 load_dotenv()
+create_tables()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
+SECRET_KEY = "mediscan-secret-key-2025-rishav"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 app = FastAPI()
+
+class UserCreate(BaseModel):
+    name: str
+    email: str
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+def verify_password(plain, hashed):
+    return pwd_context.verify(plain, hashed)
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
+
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        user = db.query(User).filter(User.email == email).first()
+        if user is None:
+            raise HTTPException(status_code=401, detail="User not found")
+        return user
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
     with open("index.html", "r", encoding="utf-8") as f:
         return f.read()
 
+@app.post("/register")
+async def register(user: UserCreate, db: Session = Depends(get_db)):
+    existing = db.query(User).filter(User.email == user.email).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    hashed = get_password_hash(user.password)
+    new_user = User(name=user.name, email=user.email, hashed_password=hashed)
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    token = create_access_token({"sub": new_user.email})
+    return {"access_token": token, "token_type": "bearer", "name": new_user.name}
+
+@app.post("/token")
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == form_data.username).first()
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=400, detail="Invalid email or password")
+    token = create_access_token({"sub": user.email})
+    return {"access_token": token, "token_type": "bearer", "name": user.name}
+
 @app.post("/analyze")
-async def analyze_report(file: UploadFile = File(...)):
+async def analyze_report(
+    file: UploadFile = File(...),
+    token: str = None,
+    db: Session = Depends(get_db)
+):
     contents = await file.read()
-    
-    # Extract text from PDF
     pdf = fitz.open(stream=contents, filetype="pdf")
     text = ""
     for page in pdf:
         text += page.get_text()
-    
+
     if not text.strip():
         return {"error": "Could not extract text from PDF"}
-    
-    # Send to Groq AI
+
     prompt = f"""
     You are a senior medical expert with 20 years of experience explaining medical reports to patients.
     
@@ -59,10 +130,35 @@ async def analyze_report(file: UploadFile = File(...)):
     Medical Report:
     {text[:4000]}
     """
-    
+
     chat_completion = client.chat.completions.create(
         messages=[{"role": "user", "content": prompt}],
         model="llama-3.3-70b-versatile",
     )
-    
-    return {"analysis": chat_completion.choices[0].message.content}
+
+    analysis = chat_completion.choices[0].message.content
+
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            email = payload.get("sub")
+            user = db.query(User).filter(User.email == email).first()
+            if user:
+                history = ReportHistory(
+                    user_id=user.id,
+                    file_name=file.filename,
+                    analysis=analysis
+                )
+                db.add(history)
+                db.commit()
+        except:
+            pass
+
+    return {"analysis": analysis}
+
+@app.get("/history")
+async def get_history(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    records = db.query(ReportHistory).filter(
+        ReportHistory.user_id == current_user.id
+    ).order_by(ReportHistory.created_at.desc()).limit(10).all()
+    return {"history": [{"file_name": r.file_name, "analysis": r.analysis, "date": str(r.created_at)} for r in records]}

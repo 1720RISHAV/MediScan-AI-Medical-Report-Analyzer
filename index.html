@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediScan AI — Medical Report Analyzer</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -52,6 +53,12 @@
             color: white;
         }
 
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
         .nav-badge {
             background: rgba(79,142,247,0.15);
             border: 1px solid rgba(79,142,247,0.3);
@@ -62,6 +69,206 @@
             font-weight: 500;
         }
 
+        .btn-nav {
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-nav-outline {
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .btn-nav-outline:hover { color: #e2e8f0; border-color: rgba(255,255,255,0.2); }
+
+        .btn-nav-primary {
+            background: linear-gradient(135deg, #4f8ef7, #7c3aed);
+            color: white;
+        }
+
+        .btn-nav-primary:hover { opacity: 0.9; }
+
+        .user-info {
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-info.show { display: flex; }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #4f8ef7, #7c3aed);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #e2e8f0;
+        }
+
+        .btn-logout {
+            background: transparent;
+            color: #64748b;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover { color: #e2e8f0; }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            background: #0f1629;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .modal-close:hover { color: #e2e8f0; }
+
+        .modal h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #e2e8f0;
+            margin-bottom: 8px;
+        }
+
+        .modal p {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 28px;
+        }
+
+        .modal-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 28px;
+            background: rgba(255,255,255,0.03);
+            padding: 4px;
+            border-radius: 10px;
+        }
+
+        .modal-tab {
+            flex: 1;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-tab.active {
+            background: linear-gradient(135deg, #4f8ef7, #7c3aed);
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            color: #e2e8f0;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: rgba(79,142,247,0.5);
+            background: rgba(79,142,247,0.05);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #4f8ef7, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .btn-submit:hover { opacity: 0.9; }
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .error-msg {
+            color: #ef4444;
+            font-size: 13px;
+            margin-top: 12px;
+            text-align: center;
+            display: none;
+        }
+
+        .error-msg.show { display: block; }
+
+        /* Hero */
         .hero {
             text-align: center;
             padding: 80px 20px 60px;
@@ -105,6 +312,7 @@
             line-height: 1.7;
         }
 
+        /* Upload */
         .upload-section {
             max-width: 680px;
             margin: 0 auto;
@@ -119,7 +327,6 @@
             background: rgba(255,255,255,0.02);
             cursor: pointer;
             transition: all 0.3s ease;
-            position: relative;
         }
 
         .upload-box:hover {
@@ -183,7 +390,6 @@
             display: none;
             align-items: center;
             gap: 12px;
-            text-align: left;
         }
 
         .file-selected.show { display: flex; }
@@ -251,6 +457,7 @@
             text-align: center;
         }
 
+        /* Result */
         .result-section {
             max-width: 680px;
             margin: 40px auto;
@@ -329,6 +536,7 @@
 
         .btn-reset:hover { color: #e2e8f0; border-color: rgba(255,255,255,0.2); }
 
+        /* History */
         .history-section {
             max-width: 680px;
             margin: 0 auto 40px;
@@ -375,6 +583,7 @@
             margin-top: 4px;
         }
 
+        /* Stats */
         .stats {
             display: flex;
             justify-content: center;
@@ -406,16 +615,71 @@
             font-size: 13px;
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
+
+<!-- Auth Modal -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <h2>Welcome to MediScan AI</h2>
+        <p>Sign in to save your report history permanently</p>
+        <div class="modal-tabs">
+            <button class="modal-tab active" id="loginTab" onclick="switchTab('login')">Sign In</button>
+            <button class="modal-tab" id="registerTab" onclick="switchTab('register')">Sign Up</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginForm">
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="loginEmail" placeholder="your@email.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="••••••••">
+            </div>
+            <button class="btn-submit" onclick="handleLogin()">Sign In</button>
+            <div class="error-msg" id="loginError"></div>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerForm" style="display:none;">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="registerName" placeholder="Rishav Kumar Singh">
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="registerEmail" placeholder="your@email.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="registerPassword" placeholder="••••••••">
+            </div>
+            <button class="btn-submit" onclick="handleRegister()">Create Account</button>
+            <div class="error-msg" id="registerError"></div>
+        </div>
+    </div>
+</div>
 
 <nav>
     <div class="logo">
         <div class="logo-icon">M</div>
         Medi<span>Scan</span> AI
     </div>
-    <div class="nav-badge">Powered by Groq AI</div>
+    <div class="nav-right">
+        <div class="nav-badge">Powered by Groq AI</div>
+        <div id="authButtons">
+            <button class="btn-nav btn-nav-outline" onclick="openModal('login')">Sign In</button>
+            <button class="btn-nav btn-nav-primary" onclick="openModal('register')">Sign Up</button>
+        </div>
+        <div class="user-info" id="userInfo">
+            <div class="user-avatar" id="userAvatar">R</div>
+            <span class="user-name" id="userName">Rishav</span>
+            <button class="btn-logout" onclick="handleLogout()">Logout</button>
+        </div>
+    </div>
 </nav>
 
 <div class="hero">
@@ -487,26 +751,147 @@
 
     let selectedFile = null;
     let reportHistory = [];
+    let authToken = localStorage.getItem('mediscan_token');
+    let currentUser = localStorage.getItem('mediscan_user');
 
-    uploadBox.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadBox.classList.add('dragover');
-    });
+    // Init auth state
+    if (authToken && currentUser) updateUILoggedIn(currentUser);
 
-    uploadBox.addEventListener('dragleave', () => {
-        uploadBox.classList.remove('dragover');
-    });
+    // Modal functions
+    function openModal(tab) {
+        document.getElementById('modalOverlay').classList.add('show');
+        switchTab(tab);
+    }
 
+    function closeModal() {
+        document.getElementById('modalOverlay').classList.remove('show');
+    }
+
+    function switchTab(tab) {
+        document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+        document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+        document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+        document.getElementById('registerTab').classList.toggle('active', tab === 'register');
+    }
+
+    async function handleLogin() {
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        const errorEl = document.getElementById('loginError');
+
+        if (!email || !password) {
+            errorEl.textContent = 'Please fill in all fields';
+            errorEl.classList.add('show');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('username', email);
+        formData.append('password', password);
+
+        try {
+            const res = await fetch('/token', { method: 'POST', body: formData });
+            const data = await res.json();
+            if (!res.ok) {
+                errorEl.textContent = data.detail || 'Invalid email or password';
+                errorEl.classList.add('show');
+                return;
+            }
+            authToken = data.access_token;
+            localStorage.setItem('mediscan_token', authToken);
+            localStorage.setItem('mediscan_user', data.name);
+            updateUILoggedIn(data.name);
+            closeModal();
+            loadServerHistory();
+        } catch (err) {
+            errorEl.textContent = 'Something went wrong. Try again.';
+            errorEl.classList.add('show');
+        }
+    }
+
+    async function handleRegister() {
+        const name = document.getElementById('registerName').value;
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+        const errorEl = document.getElementById('registerError');
+
+        if (!name || !email || !password) {
+            errorEl.textContent = 'Please fill in all fields';
+            errorEl.classList.add('show');
+            return;
+        }
+
+        try {
+            const res = await fetch('/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                errorEl.textContent = data.detail || 'Registration failed';
+                errorEl.classList.add('show');
+                return;
+            }
+            authToken = data.access_token;
+            localStorage.setItem('mediscan_token', authToken);
+            localStorage.setItem('mediscan_user', data.name);
+            updateUILoggedIn(data.name);
+            closeModal();
+        } catch (err) {
+            errorEl.textContent = 'Something went wrong. Try again.';
+            errorEl.classList.add('show');
+        }
+    }
+
+    function updateUILoggedIn(name) {
+        document.getElementById('authButtons').style.display = 'none';
+        document.getElementById('userInfo').classList.add('show');
+        document.getElementById('userName').textContent = name;
+        document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+        currentUser = name;
+    }
+
+    function handleLogout() {
+        authToken = null;
+        currentUser = null;
+        localStorage.removeItem('mediscan_token');
+        localStorage.removeItem('mediscan_user');
+        document.getElementById('authButtons').style.display = 'flex';
+        document.getElementById('userInfo').classList.remove('show');
+        reportHistory = [];
+        historySection.style.display = 'none';
+        historyList.innerHTML = '';
+    }
+
+    async function loadServerHistory() {
+        if (!authToken) return;
+        try {
+            const res = await fetch('/history', {
+                headers: { 'Authorization': 'Bearer ' + authToken }
+            });
+            const data = await res.json();
+            if (data.history && data.history.length > 0) {
+                reportHistory = data.history.map(h => ({
+                    fileName: h.file_name,
+                    analysis: h.analysis,
+                    date: new Date(h.date).toLocaleString()
+                }));
+                renderHistory();
+            }
+        } catch (err) {}
+    }
+
+    // Upload handlers
+    uploadBox.addEventListener('dragover', (e) => { e.preventDefault(); uploadBox.classList.add('dragover'); });
+    uploadBox.addEventListener('dragleave', () => { uploadBox.classList.remove('dragover'); });
     uploadBox.addEventListener('drop', (e) => {
         e.preventDefault();
         uploadBox.classList.remove('dragover');
         const file = e.dataTransfer.files[0];
         if (file && file.type === 'application/pdf') handleFile(file);
     });
-
-    fileInput.addEventListener('change', (e) => {
-        if (e.target.files[0]) handleFile(e.target.files[0]);
-    });
+    fileInput.addEventListener('change', (e) => { if (e.target.files[0]) handleFile(e.target.files[0]); });
 
     function handleFile(file) {
         selectedFile = file;
@@ -517,20 +902,16 @@
 
     async function analyzeReport() {
         if (!selectedFile) return;
-
         analyzeBtn.disabled = true;
         loader.classList.add('show');
         resultSection.classList.remove('show');
 
         const formData = new FormData();
         formData.append('file', selectedFile);
+        if (authToken) formData.append('token', authToken);
 
         try {
-            const response = await fetch('/analyze', {
-                method: 'POST',
-                body: formData
-            });
-
+            const response = await fetch('/analyze', { method: 'POST', body: formData });
             const data = await response.json();
             loader.classList.remove('show');
 
@@ -546,23 +927,17 @@
 
             resultSection.classList.add('show');
             resultSection.scrollIntoView({ behavior: 'smooth' });
-
         } catch (err) {
             loader.classList.remove('show');
             resultCard.innerHTML = 'Something went wrong. Please try again.';
             resultSection.classList.add('show');
         }
-
         analyzeBtn.disabled = false;
     }
 
     function saveToHistory(name, analysis) {
-        reportHistory.unshift({
-            fileName: name,
-            analysis: analysis,
-            date: new Date().toLocaleString()
-        });
-        if (reportHistory.length > 5) reportHistory.pop();
+        reportHistory.unshift({ fileName: name, analysis: analysis, date: new Date().toLocaleString() });
+        if (reportHistory.length > 10) reportHistory.pop();
         renderHistory();
     }
 
@@ -592,8 +967,6 @@
     function exportPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        
-        // Header
         doc.setFillColor(10, 15, 30);
         doc.rect(0, 0, 210, 40, 'F');
         doc.setTextColor(79, 142, 247);
@@ -605,28 +978,17 @@
         doc.setFont('helvetica', 'normal');
         doc.text('Medical Report Analysis', 20, 30);
         doc.text('Generated: ' + new Date().toLocaleString(), 20, 38);
-
-        // Divider
         doc.setDrawColor(79, 142, 247);
         doc.setLineWidth(0.5);
         doc.line(20, 44, 190, 44);
-
-        // Content
         doc.setTextColor(30, 30, 30);
         doc.setFontSize(11);
-        doc.setFont('helvetica', 'normal');
-
         const content = resultCard.innerText;
         const lines = doc.splitTextToSize(content, 170);
-        
         let y = 54;
         lines.forEach(line => {
-            if (y > 270) {
-                doc.addPage();
-                y = 20;
-            }
-            if (line.startsWith('1.') || line.startsWith('2.') || line.startsWith('3.') || 
-                line.startsWith('4.') || line.startsWith('5.') || line.startsWith('6.')) {
+            if (y > 270) { doc.addPage(); y = 20; }
+            if (line.match(/^\d\./)) {
                 doc.setFont('helvetica', 'bold');
                 doc.setTextColor(79, 142, 247);
             } else {
@@ -636,8 +998,6 @@
             doc.text(line, 20, y);
             y += 7;
         });
-
-        // Footer
         const pageCount = doc.internal.getNumberOfPages();
         for (let i = 1; i <= pageCount; i++) {
             doc.setPage(i);
@@ -646,7 +1006,6 @@
             doc.text('MediScan AI — For informational purposes only. Consult your doctor.', 20, 285);
             doc.text('Page ' + i + ' of ' + pageCount, 180, 285);
         }
-
         doc.save('MediScan-Analysis.pdf');
     }
 
