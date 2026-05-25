@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, Depends, HTTPException, status
+from fastapi import FastAPI, File, UploadFile, Depends, HTTPException, Form
 from fastapi.responses import HTMLResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
+from typing import Optional
 import fitz
 import os
 from dotenv import load_dotenv
@@ -89,9 +90,12 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
 @app.post("/analyze")
 async def analyze_report(
     file: UploadFile = File(...),
-    token: str = None,
+    token: Optional[str] = Form(None),
+    language: Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
+    print(f"DEBUG: language = {language}")
+
     contents = await file.read()
     pdf = fitz.open(stream=contents, filetype="pdf")
     text = ""
@@ -101,42 +105,66 @@ async def analyze_report(
     if not text.strip():
         return {"error": "Could not extract text from PDF"}
 
-    prompt = f"""
-    You are a senior medical expert with 20 years of experience explaining medical reports to patients.
-    
-    Analyze this medical report thoroughly and provide:
-    
-    1. **Simple Summary**: In 2-3 sentences, explain what this report is about in simple language a 10-year-old can understand.
-    
-    2. **Key Findings**: List every important value found. For each value state:
-       - The parameter name
-       - The reported value
-       - Whether it is Normal, Low, or High
-       - What it means for the patient's health
-    
-    3. **Risk Flags**: List any abnormal values or concerning patterns. For each risk:
-       - Clearly state what is abnormal
-       - Explain the potential health consequence
-       - Rate severity as Mild, Moderate, or Severe
-    
-    4. **Positive Findings**: Mention any values that are healthy and reassure the patient.
-    
-    5. **Recommendations**: Give 3-5 specific, actionable steps the patient should take including lifestyle changes and what to discuss with their doctor.
-    
-    6. **Urgency Level**: State whether this report needs Immediate Attention, Follow-up Within a Week, Routine Follow-up, or No Immediate Action needed.
-    
-    Be compassionate, clear, and avoid complex medical jargon. Always remind the patient to consult their doctor.
-    
-    Medical Report:
-    {text[:4000]}
-    """
+    # Step 1: English analysis
+    english_prompt = f"""
+You are a senior medical expert with 20 years of experience explaining medical reports to patients.
 
-    chat_completion = client.chat.completions.create(
-        messages=[{"role": "user", "content": prompt}],
+Analyze this medical report thoroughly and provide:
+
+1. **Simple Summary**: In 2-3 sentences, explain what this report is about in simple language a 10-year-old can understand.
+
+2. **Key Findings**: List every important value found. For each value state:
+   - The parameter name
+   - The reported value
+   - Whether it is Normal, Low, or High
+   - What it means for the patient's health
+
+3. **Risk Flags**: List any abnormal values or concerning patterns. For each risk:
+   - Clearly state what is abnormal
+   - Explain the potential health consequence
+   - Rate severity as Mild, Moderate, or Severe
+
+4. **Positive Findings**: Mention any values that are healthy and reassure the patient.
+
+5. **Recommendations**: Give 3-5 specific, actionable steps the patient should take including lifestyle changes and what to discuss with their doctor.
+
+6. **Urgency Level**: State whether this report needs Immediate Attention, Follow-up Within a Week, Routine Follow-up, or No Immediate Action needed.
+
+Be compassionate, clear, and avoid complex medical jargon. Always remind the patient to consult their doctor.
+Respond in English.
+
+Medical Report:
+{text[:4000]}
+"""
+
+    english_response = client.chat.completions.create(
+        messages=[{"role": "user", "content": english_prompt}],
         model="llama-3.3-70b-versatile",
     )
+    analysis = english_response.choices[0].message.content
+    print(f"DEBUG: English analysis done, language={language}")
 
-    analysis = chat_completion.choices[0].message.content
+    # Step 2: Translate to Hindi if requested
+    if language == "hi":
+        print("DEBUG: Translating to Hindi...")
+        hindi_prompt = f"""You are a professional Hindi translator. Translate the following medical analysis to Hindi (Devanagari script).
+
+Rules:
+- Translate ALL explanations and text to Hindi
+- Keep numbers and medical values as-is (e.g. 154/98 mmHg, 7.9%, 148 mg/dL)
+- Translate section headings to Hindi
+- Do not add or remove any information
+- Do not include any English sentences in output
+
+Text to translate:
+{analysis}"""
+
+        hindi_response = client.chat.completions.create(
+            messages=[{"role": "user", "content": hindi_prompt}],
+            model="llama-3.3-70b-versatile",
+        )
+        analysis = hindi_response.choices[0].message.content
+        print("DEBUG: Hindi translation done")
 
     if token:
         try:

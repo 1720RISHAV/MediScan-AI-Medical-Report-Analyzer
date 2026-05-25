@@ -973,6 +973,9 @@
         const formData = new FormData();
         formData.append('file', selectedFile);
         if (authToken) formData.append('token', authToken);
+        console.log('DEBUG language being sent:', currentLang);
+        console.log('DEBUG language being sent:', currentLang);
+        formData.append('language', currentLang);
 
         try {
             const response = await fetch('/analyze', { method: 'POST', body: formData });
