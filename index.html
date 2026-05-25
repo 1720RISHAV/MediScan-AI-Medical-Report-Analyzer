@@ -69,6 +69,20 @@
             font-weight: 500;
         }
 
+        .btn-lang {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #94a3b8;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-lang:hover { color: #e2e8f0; border-color: rgba(255,255,255,0.2); }
+
         .btn-nav {
             padding: 8px 18px;
             border-radius: 8px;
@@ -115,11 +129,7 @@
             color: white;
         }
 
-        .user-name {
-            font-size: 14px;
-            font-weight: 500;
-            color: #e2e8f0;
-        }
+        .user-name { font-size: 14px; font-weight: 500; color: #e2e8f0; }
 
         .btn-logout {
             background: transparent;
@@ -171,18 +181,8 @@
 
         .modal-close:hover { color: #e2e8f0; }
 
-        .modal h2 {
-            font-size: 24px;
-            font-weight: 700;
-            color: #e2e8f0;
-            margin-bottom: 8px;
-        }
-
-        .modal p {
-            font-size: 14px;
-            color: #64748b;
-            margin-bottom: 28px;
-        }
+        .modal h2 { font-size: 24px; font-weight: 700; color: #e2e8f0; margin-bottom: 8px; }
+        .modal p { font-size: 14px; color: #64748b; margin-bottom: 28px; }
 
         .modal-tabs {
             display: flex;
@@ -211,9 +211,7 @@
             color: white;
         }
 
-        .form-group {
-            margin-bottom: 16px;
-        }
+        .form-group { margin-bottom: 16px; }
 
         .form-group label {
             display: block;
@@ -269,10 +267,7 @@
         .error-msg.show { display: block; }
 
         /* Hero */
-        .hero {
-            text-align: center;
-            padding: 80px 20px 60px;
-        }
+        .hero { text-align: center; padding: 80px 20px 60px; }
 
         .hero-badge {
             display: inline-flex;
@@ -304,20 +299,10 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .hero p {
-            font-size: 18px;
-            color: #64748b;
-            max-width: 520px;
-            margin: 0 auto 50px;
-            line-height: 1.7;
-        }
+        .hero p { font-size: 18px; color: #64748b; max-width: 520px; margin: 0 auto 50px; line-height: 1.7; }
 
         /* Upload */
-        .upload-section {
-            max-width: 680px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
+        .upload-section { max-width: 680px; margin: 0 auto; padding: 0 20px; }
 
         .upload-box {
             border: 2px dashed rgba(79,142,247,0.3);
@@ -329,16 +314,8 @@
             transition: all 0.3s ease;
         }
 
-        .upload-box:hover {
-            border-color: rgba(79,142,247,0.6);
-            background: rgba(79,142,247,0.05);
-            transform: translateY(-2px);
-        }
-
-        .upload-box.dragover {
-            border-color: #4f8ef7;
-            background: rgba(79,142,247,0.08);
-        }
+        .upload-box:hover { border-color: rgba(79,142,247,0.6); background: rgba(79,142,247,0.05); transform: translateY(-2px); }
+        .upload-box.dragover { border-color: #4f8ef7; background: rgba(79,142,247,0.08); }
 
         .upload-icon {
             width: 64px;
@@ -352,18 +329,8 @@
             font-size: 28px;
         }
 
-        .upload-box h3 {
-            font-size: 18px;
-            font-weight: 600;
-            color: #e2e8f0;
-            margin-bottom: 8px;
-        }
-
-        .upload-box p {
-            color: #64748b;
-            font-size: 14px;
-            margin-bottom: 24px;
-        }
+        .upload-box h3 { font-size: 18px; font-weight: 600; color: #e2e8f0; margin-bottom: 8px; }
+        .upload-box p { color: #64748b; font-size: 14px; margin-bottom: 24px; }
 
         #fileInput { display: none; }
 
@@ -394,14 +361,7 @@
 
         .file-selected.show { display: flex; }
 
-        .file-selected span {
-            font-size: 14px;
-            color: #94a3b8;
-            flex: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+        .file-selected span { font-size: 14px; color: #94a3b8; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
         .btn-analyze {
             width: 100%;
@@ -422,12 +382,7 @@
         .btn-analyze:hover { opacity: 0.9; transform: translateY(-1px); }
         .btn-analyze:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-        .loader {
-            display: none;
-            text-align: center;
-            padding: 40px;
-        }
-
+        .loader { display: none; text-align: center; padding: 40px; }
         .loader.show { display: block; }
 
         .spinner {
@@ -457,28 +412,75 @@
             text-align: center;
         }
 
-        /* Result */
-        .result-section {
+        /* Save Prompt */
+        .save-prompt {
             max-width: 680px;
-            margin: 40px auto;
-            padding: 0 20px 60px;
+            margin: 20px auto 0;
+            padding: 0 20px;
             display: none;
         }
 
-        .result-section.show { display: block; }
+        .save-prompt.show { display: block; }
 
-        .result-header {
+        .save-prompt-card {
+            background: linear-gradient(135deg, rgba(79,142,247,0.08), rgba(124,58,237,0.08));
+            border: 1px solid rgba(79,142,247,0.25);
+            border-radius: 16px;
+            padding: 20px 24px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 24px;
+            justify-content: space-between;
+            gap: 16px;
         }
 
-        .result-header h2 {
-            font-size: 22px;
-            font-weight: 700;
+        .save-prompt-text h4 {
+            font-size: 15px;
+            font-weight: 600;
             color: #e2e8f0;
+            margin-bottom: 4px;
         }
+
+        .save-prompt-text p {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .save-prompt-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .btn-save-login {
+            padding: 9px 18px;
+            background: linear-gradient(135deg, #4f8ef7, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-save-dismiss {
+            padding: 9px 14px;
+            background: transparent;
+            color: #64748b;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .btn-save-dismiss:hover { color: #e2e8f0; }
+
+        /* Result */
+        .result-section { max-width: 680px; margin: 40px auto; padding: 0 20px 60px; display: none; }
+        .result-section.show { display: block; }
+
+        .result-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+        .result-header h2 { font-size: 22px; font-weight: 700; color: #e2e8f0; }
 
         .result-badge {
             background: rgba(34,197,94,0.15);
@@ -537,19 +539,8 @@
         .btn-reset:hover { color: #e2e8f0; border-color: rgba(255,255,255,0.2); }
 
         /* History */
-        .history-section {
-            max-width: 680px;
-            margin: 0 auto 40px;
-            padding: 0 20px;
-            display: none;
-        }
-
-        .history-section h2 {
-            font-size: 20px;
-            font-weight: 700;
-            color: #e2e8f0;
-            margin-bottom: 16px;
-        }
+        .history-section { max-width: 680px; margin: 0 auto 40px; padding: 0 20px; display: none; }
+        .history-section h2 { font-size: 20px; font-weight: 700; color: #e2e8f0; margin-bottom: 16px; }
 
         .history-item {
             display: flex;
@@ -564,24 +555,10 @@
             transition: all 0.3s ease;
         }
 
-        .history-item:hover {
-            background: rgba(79,142,247,0.08);
-            border-color: rgba(79,142,247,0.3);
-        }
-
+        .history-item:hover { background: rgba(79,142,247,0.08); border-color: rgba(79,142,247,0.3); }
         .history-icon { font-size: 24px; }
-
-        .history-name {
-            font-size: 14px;
-            font-weight: 500;
-            color: #e2e8f0;
-        }
-
-        .history-date {
-            font-size: 12px;
-            color: #64748b;
-            margin-top: 4px;
-        }
+        .history-name { font-size: 14px; font-weight: 500; color: #e2e8f0; }
+        .history-date { font-size: 12px; color: #64748b; margin-top: 4px; }
 
         /* Stats */
         .stats {
@@ -594,26 +571,10 @@
             margin: 60px 0 0;
         }
 
-        .stat h3 {
-            font-size: 28px;
-            font-weight: 700;
-            color: #4f8ef7;
-            text-align: center;
-        }
+        .stat h3 { font-size: 28px; font-weight: 700; color: #4f8ef7; text-align: center; }
+        .stat p { font-size: 13px; color: #64748b; text-align: center; margin-top: 4px; }
 
-        .stat p {
-            font-size: 13px;
-            color: #64748b;
-            text-align: center;
-            margin-top: 4px;
-        }
-
-        footer {
-            text-align: center;
-            padding: 30px;
-            color: #334155;
-            font-size: 13px;
-        }
+        footer { text-align: center; padding: 30px; color: #334155; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -622,42 +583,40 @@
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
         <button class="modal-close" onclick="closeModal()">✕</button>
-        <h2>Welcome to MediScan AI</h2>
-        <p>Sign in to save your report history permanently</p>
+        <h2 id="modalTitle">Welcome to MediScan AI</h2>
+        <p id="modalSubtitle">Sign in to save your report history permanently</p>
         <div class="modal-tabs">
-            <button class="modal-tab active" id="loginTab" onclick="switchTab('login')">Sign In</button>
-            <button class="modal-tab" id="registerTab" onclick="switchTab('register')">Sign Up</button>
+            <button class="modal-tab active" id="loginTab" onclick="switchTab('login')" data-en="Sign In" data-hi="लॉग इन">Sign In</button>
+            <button class="modal-tab" id="registerTab" onclick="switchTab('register')" data-en="Sign Up" data-hi="साइन अप">Sign Up</button>
         </div>
 
-        <!-- Login Form -->
         <div id="loginForm">
             <div class="form-group">
-                <label>Email Address</label>
+                <label id="labelLoginEmail">Email Address</label>
                 <input type="email" id="loginEmail" placeholder="your@email.com">
             </div>
             <div class="form-group">
-                <label>Password</label>
+                <label id="labelLoginPassword">Password</label>
                 <input type="password" id="loginPassword" placeholder="••••••••">
             </div>
-            <button class="btn-submit" onclick="handleLogin()">Sign In</button>
+            <button class="btn-submit" onclick="handleLogin()" id="btnLogin" data-en="Sign In" data-hi="लॉग इन">Sign In</button>
             <div class="error-msg" id="loginError"></div>
         </div>
 
-        <!-- Register Form -->
         <div id="registerForm" style="display:none;">
             <div class="form-group">
-                <label>Full Name</label>
+                <label id="labelRegisterName">Full Name</label>
                 <input type="text" id="registerName" placeholder="Rishav Kumar Singh">
             </div>
             <div class="form-group">
-                <label>Email Address</label>
+                <label id="labelRegisterEmail">Email Address</label>
                 <input type="email" id="registerEmail" placeholder="your@email.com">
             </div>
             <div class="form-group">
-                <label>Password</label>
+                <label id="labelRegisterPassword">Password</label>
                 <input type="password" id="registerPassword" placeholder="••••••••">
             </div>
-            <button class="btn-submit" onclick="handleRegister()">Create Account</button>
+            <button class="btn-submit" onclick="handleRegister()" id="btnRegister" data-en="Create Account" data-hi="अकाउंट बनाएं">Create Account</button>
             <div class="error-msg" id="registerError"></div>
         </div>
     </div>
@@ -669,31 +628,32 @@
         Medi<span>Scan</span> AI
     </div>
     <div class="nav-right">
-        <div class="nav-badge">Powered by Groq AI</div>
-        <div id="authButtons">
-            <button class="btn-nav btn-nav-outline" onclick="openModal('login')">Sign In</button>
-            <button class="btn-nav btn-nav-primary" onclick="openModal('register')">Sign Up</button>
+        <div class="nav-badge" id="navBadge">Powered by Groq AI</div>
+        <button class="btn-lang" onclick="toggleLanguage()" id="langBtn">हिंदी</button>
+        <div id="authButtons" style="display:flex; gap:8px;">
+            <button class="btn-nav btn-nav-outline" onclick="openModal('login')" id="btnSignIn" data-en="Sign In" data-hi="लॉग इन">Sign In</button>
+            <button class="btn-nav btn-nav-primary" onclick="openModal('register')" id="btnSignUp" data-en="Sign Up" data-hi="साइन अप">Sign Up</button>
         </div>
         <div class="user-info" id="userInfo">
             <div class="user-avatar" id="userAvatar">R</div>
             <span class="user-name" id="userName">Rishav</span>
-            <button class="btn-logout" onclick="handleLogout()">Logout</button>
+            <button class="btn-logout" onclick="handleLogout()" id="btnLogout" data-en="Logout" data-hi="लॉग आउट">Logout</button>
         </div>
     </div>
 </nav>
 
 <div class="hero">
-    <div class="hero-badge">AI-Powered Medical Analysis</div>
-    <h1>Understand Your<br><span>Medical Reports</span><br>Instantly</h1>
-    <p>Upload any medical report and get a clear, simple explanation powered by advanced AI — no medical degree required.</p>
+    <div class="hero-badge" id="heroBadge">AI-Powered Medical Analysis</div>
+    <h1 id="heroTitle">Understand Your<br><span id="heroSpan">Medical Reports</span><br>Instantly</h1>
+    <p id="heroSubtitle">Upload any medical report and get a clear, simple explanation powered by advanced AI — no medical degree required.</p>
 </div>
 
 <div class="upload-section">
     <div class="upload-box" id="uploadBox">
         <div class="upload-icon">📄</div>
-        <h3>Drop your medical report here</h3>
-        <p>Supports PDF files — Blood tests, X-ray reports, Lab results & more</p>
-        <button class="btn-upload" onclick="document.getElementById('fileInput').click()">Choose File</button>
+        <h3 id="uploadTitle">Drop your medical report here</h3>
+        <p id="uploadSubtitle">Supports PDF files — Blood tests, X-ray reports, Lab results & more</p>
+        <button class="btn-upload" onclick="document.getElementById('fileInput').click()" id="btnChooseFile">Choose File</button>
         <input type="file" id="fileInput" accept=".pdf">
     </div>
 
@@ -702,40 +662,54 @@
         <span id="fileName">No file selected</span>
     </div>
 
-    <button class="btn-analyze" id="analyzeBtn" onclick="analyzeReport()">Analyze Report</button>
+    <button class="btn-analyze" id="analyzeBtn" onclick="analyzeReport()" data-en="Analyze Report" data-hi="रिपोर्ट विश्लेषण करें">Analyze Report</button>
 
     <div class="loader" id="loader">
         <div class="spinner"></div>
-        <p>Analyzing your report with <span>Groq AI</span>...</p>
+        <p id="loaderText">Analyzing your report with <span>Groq AI</span>...</p>
     </div>
 
-    <div class="disclaimer">
+    <div class="disclaimer" id="disclaimerText">
         MediScan AI is for informational purposes only. Always consult a qualified healthcare professional for medical advice.
+    </div>
+</div>
+
+<!-- Save Prompt — shown after analysis if not logged in -->
+<div class="save-prompt" id="savePrompt">
+    <div class="save-prompt-card">
+        <div class="save-prompt-text">
+            <h4 id="savePromptTitle">Save this report to your account</h4>
+            <p id="savePromptSubtitle">Login or sign up to keep your report history permanently — access it anytime.</p>
+        </div>
+        <div class="save-prompt-actions">
+            <button class="btn-save-login" onclick="openModal('register')" id="btnSaveLogin" data-en="Save Report" data-hi="रिपोर्ट सेव करें">Save Report</button>
+            <button class="btn-save-dismiss" onclick="dismissSavePrompt()" id="btnDismiss" data-en="Dismiss" data-hi="बंद करें">Dismiss</button>
+        </div>
     </div>
 </div>
 
 <div class="result-section" id="resultSection">
     <div class="result-header">
-        <h2>Analysis Complete</h2>
-        <div class="result-badge">AI Verified</div>
+        <h2 id="resultTitle">Analysis Complete</h2>
+        <div class="result-badge" id="resultBadge">AI Verified</div>
     </div>
     <div class="result-card" id="resultCard"></div>
-    <button class="btn-export" onclick="exportPDF()">Download Analysis</button>
-    <button class="btn-reset" onclick="resetApp()">Analyze Another Report</button>
+    <button class="btn-export" onclick="exportPDF()" id="btnDownload" data-en="Download Analysis" data-hi="विश्लेषण डाउनलोड करें">Download Analysis</button>
+    <button class="btn-reset" onclick="resetApp()" id="btnAnalyzeAnother" data-en="Analyze Another Report" data-hi="दूसरी रिपोर्ट विश्लेषण करें">Analyze Another Report</button>
 </div>
 
 <div class="history-section" id="historySection">
-    <h2>Recent Reports</h2>
+    <h2 id="historyTitle">Recent Reports</h2>
     <div id="historyList"></div>
 </div>
 
 <div class="stats">
-    <div class="stat"><h3>15+</h3><p>Report Types Supported</p></div>
-    <div class="stat"><h3>99%</h3><p>Accuracy Rate</p></div>
-    <div class="stat"><h3>&lt;10s</h3><p>Analysis Time</p></div>
+    <div class="stat"><h3>15+</h3><p id="stat1">Report Types Supported</p></div>
+    <div class="stat"><h3>99%</h3><p id="stat2">Accuracy Rate</p></div>
+    <div class="stat"><h3>&lt;10s</h3><p id="stat3">Analysis Time</p></div>
 </div>
 
-<footer>© 2025 MediScan AI — Built by Rishav Kumar Singh</footer>
+<footer id="footerText">© 2025 MediScan AI — Built by Rishav Kumar Singh</footer>
 
 <script>
     const uploadBox = document.getElementById('uploadBox');
@@ -748,16 +722,133 @@
     const resultCard = document.getElementById('resultCard');
     const historySection = document.getElementById('historySection');
     const historyList = document.getElementById('historyList');
+    const savePrompt = document.getElementById('savePrompt');
 
     let selectedFile = null;
     let reportHistory = [];
     let authToken = localStorage.getItem('mediscan_token');
     let currentUser = localStorage.getItem('mediscan_user');
+    let currentLang = 'en';
 
-    // Init auth state
     if (authToken && currentUser) updateUILoggedIn(currentUser);
 
-    // Modal functions
+    // Language translations
+    const translations = {
+        en: {
+            heroBadge: 'AI-Powered Medical Analysis',
+            heroTitle: 'Understand Your',
+            heroSpan: 'Medical Reports',
+            heroInstantly: 'Instantly',
+            heroSubtitle: 'Upload any medical report and get a clear, simple explanation powered by advanced AI — no medical degree required.',
+            uploadTitle: 'Drop your medical report here',
+            uploadSubtitle: 'Supports PDF files — Blood tests, X-ray reports, Lab results & more',
+            btnChooseFile: 'Choose File',
+            analyzeBtn: 'Analyze Report',
+            loaderText: 'Analyzing your report with Groq AI...',
+            disclaimer: 'MediScan AI is for informational purposes only. Always consult a qualified healthcare professional for medical advice.',
+            resultTitle: 'Analysis Complete',
+            resultBadge: 'AI Verified',
+            btnDownload: 'Download Analysis',
+            btnAnalyzeAnother: 'Analyze Another Report',
+            historyTitle: 'Recent Reports',
+            savePromptTitle: 'Save this report to your account',
+            savePromptSubtitle: 'Login or sign up to keep your report history permanently — access it anytime.',
+            btnSaveLogin: 'Save Report',
+            btnDismiss: 'Dismiss',
+            btnSignIn: 'Sign In',
+            btnSignUp: 'Sign Up',
+            btnLogout: 'Logout',
+            modalTitle: 'Welcome to MediScan AI',
+            modalSubtitle: 'Sign in to save your report history permanently',
+            stat1: 'Report Types Supported',
+            stat2: 'Accuracy Rate',
+            stat3: 'Analysis Time',
+            langBtn: 'हिंदी',
+            navBadge: 'Powered by Groq AI',
+            footerText: '© 2025 MediScan AI — Built by Rishav Kumar Singh'
+        },
+        hi: {
+            heroBadge: 'AI-संचालित चिकित्सा विश्लेषण',
+            heroTitle: 'अपनी',
+            heroSpan: 'मेडिकल रिपोर्ट',
+            heroInstantly: 'तुरंत समझें',
+            heroSubtitle: 'कोई भी मेडिकल रिपोर्ट अपलोड करें और उन्नत AI द्वारा संचालित स्पष्ट, सरल व्याख्या प्राप्त करें।',
+            uploadTitle: 'अपनी मेडिकल रिपोर्ट यहाँ डालें',
+            uploadSubtitle: 'PDF फ़ाइलें समर्थित — रक्त परीक्षण, X-ray रिपोर्ट, लैब परिणाम और अधिक',
+            btnChooseFile: 'फ़ाइल चुनें',
+            analyzeBtn: 'रिपोर्ट विश्लेषण करें',
+            loaderText: 'Groq AI के साथ आपकी रिपोर्ट का विश्लेषण हो रहा है...',
+            disclaimer: 'MediScan AI केवल सूचनात्मक उद्देश्यों के लिए है। हमेशा एक योग्य स्वास्थ्य सेवा पेशेवर से परामर्श करें।',
+            resultTitle: 'विश्लेषण पूर्ण',
+            resultBadge: 'AI सत्यापित',
+            btnDownload: 'विश्लेषण डाउनलोड करें',
+            btnAnalyzeAnother: 'दूसरी रिपोर्ट विश्लेषण करें',
+            historyTitle: 'हाल की रिपोर्टें',
+            savePromptTitle: 'इस रिपोर्ट को अपने अकाउंट में सेव करें',
+            savePromptSubtitle: 'अपनी रिपोर्ट हिस्ट्री स्थायी रूप से रखने के लिए लॉगिन करें।',
+            btnSaveLogin: 'रिपोर्ट सेव करें',
+            btnDismiss: 'बंद करें',
+            btnSignIn: 'लॉग इन',
+            btnSignUp: 'साइन अप',
+            btnLogout: 'लॉग आउट',
+            modalTitle: 'MediScan AI में आपका स्वागत है',
+            modalSubtitle: 'अपनी रिपोर्ट हिस्ट्री सेव करने के लिए साइन इन करें',
+            stat1: 'समर्थित रिपोर्ट प्रकार',
+            stat2: 'सटीकता दर',
+            stat3: 'विश्लेषण समय',
+            langBtn: 'English',
+            navBadge: 'Groq AI द्वारा संचालित',
+            footerText: '© 2025 MediScan AI — ऋषव कुमार सिंह द्वारा निर्मित'
+        }
+    };
+
+    function toggleLanguage() {
+        currentLang = currentLang === 'en' ? 'hi' : 'en';
+        applyTranslations();
+    }
+
+    function applyTranslations() {
+        const t = translations[currentLang];
+        document.getElementById('heroBadge').textContent = t.heroBadge;
+        document.getElementById('heroTitle').innerHTML = t.heroTitle + '<br><span id="heroSpan">' + t.heroSpan + '</span><br>' + t.heroInstantly;
+        document.getElementById('heroSubtitle').textContent = t.heroSubtitle;
+        document.getElementById('uploadTitle').textContent = t.uploadTitle;
+        document.getElementById('uploadSubtitle').textContent = t.uploadSubtitle;
+        document.getElementById('btnChooseFile').textContent = t.btnChooseFile;
+        document.getElementById('analyzeBtn').textContent = t.analyzeBtn;
+        document.getElementById('loaderText').innerHTML = t.loaderText.replace('Groq AI', '<span>Groq AI</span>');
+        document.getElementById('disclaimerText').textContent = t.disclaimer;
+        document.getElementById('resultTitle').textContent = t.resultTitle;
+        document.getElementById('resultBadge').textContent = t.resultBadge;
+        document.getElementById('btnDownload').textContent = t.btnDownload;
+        document.getElementById('btnAnalyzeAnother').textContent = t.btnAnalyzeAnother;
+        document.getElementById('historyTitle').textContent = t.historyTitle;
+        document.getElementById('savePromptTitle').textContent = t.savePromptTitle;
+        document.getElementById('savePromptSubtitle').textContent = t.savePromptSubtitle;
+        document.getElementById('btnSaveLogin').textContent = t.btnSaveLogin;
+        document.getElementById('btnDismiss').textContent = t.btnDismiss;
+        document.getElementById('btnSignIn').textContent = t.btnSignIn;
+        document.getElementById('btnSignUp').textContent = t.btnSignUp;
+        document.getElementById('btnLogout').textContent = t.btnLogout;
+        document.getElementById('modalTitle').textContent = t.modalTitle;
+        document.getElementById('modalSubtitle').textContent = t.modalSubtitle;
+        document.getElementById('stat1').textContent = t.stat1;
+        document.getElementById('stat2').textContent = t.stat2;
+        document.getElementById('stat3').textContent = t.stat3;
+        document.getElementById('langBtn').textContent = t.langBtn;
+        document.getElementById('navBadge').textContent = t.navBadge;
+        document.getElementById('footerText').textContent = t.footerText;
+
+        // Re-apply gradient to heroSpan
+        const heroSpan = document.getElementById('heroSpan');
+        if (heroSpan) {
+            heroSpan.style.background = 'linear-gradient(135deg, #4f8ef7, #7c3aed)';
+            heroSpan.style.webkitBackgroundClip = 'text';
+            heroSpan.style.webkitTextFillColor = 'transparent';
+        }
+    }
+
+    // Modal
     function openModal(tab) {
         document.getElementById('modalOverlay').classList.add('show');
         switchTab(tab);
@@ -778,35 +869,22 @@
         const email = document.getElementById('loginEmail').value;
         const password = document.getElementById('loginPassword').value;
         const errorEl = document.getElementById('loginError');
-
-        if (!email || !password) {
-            errorEl.textContent = 'Please fill in all fields';
-            errorEl.classList.add('show');
-            return;
-        }
-
+        if (!email || !password) { errorEl.textContent = 'Please fill in all fields'; errorEl.classList.add('show'); return; }
         const formData = new FormData();
         formData.append('username', email);
         formData.append('password', password);
-
         try {
             const res = await fetch('/token', { method: 'POST', body: formData });
             const data = await res.json();
-            if (!res.ok) {
-                errorEl.textContent = data.detail || 'Invalid email or password';
-                errorEl.classList.add('show');
-                return;
-            }
+            if (!res.ok) { errorEl.textContent = data.detail || 'Invalid email or password'; errorEl.classList.add('show'); return; }
             authToken = data.access_token;
             localStorage.setItem('mediscan_token', authToken);
             localStorage.setItem('mediscan_user', data.name);
             updateUILoggedIn(data.name);
             closeModal();
+            dismissSavePrompt();
             loadServerHistory();
-        } catch (err) {
-            errorEl.textContent = 'Something went wrong. Try again.';
-            errorEl.classList.add('show');
-        }
+        } catch (err) { errorEl.textContent = 'Something went wrong. Try again.'; errorEl.classList.add('show'); }
     }
 
     async function handleRegister() {
@@ -814,34 +892,18 @@
         const email = document.getElementById('registerEmail').value;
         const password = document.getElementById('registerPassword').value;
         const errorEl = document.getElementById('registerError');
-
-        if (!name || !email || !password) {
-            errorEl.textContent = 'Please fill in all fields';
-            errorEl.classList.add('show');
-            return;
-        }
-
+        if (!name || !email || !password) { errorEl.textContent = 'Please fill in all fields'; errorEl.classList.add('show'); return; }
         try {
-            const res = await fetch('/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, password })
-            });
+            const res = await fetch('/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, password }) });
             const data = await res.json();
-            if (!res.ok) {
-                errorEl.textContent = data.detail || 'Registration failed';
-                errorEl.classList.add('show');
-                return;
-            }
+            if (!res.ok) { errorEl.textContent = data.detail || 'Registration failed'; errorEl.classList.add('show'); return; }
             authToken = data.access_token;
             localStorage.setItem('mediscan_token', authToken);
             localStorage.setItem('mediscan_user', data.name);
             updateUILoggedIn(data.name);
             closeModal();
-        } catch (err) {
-            errorEl.textContent = 'Something went wrong. Try again.';
-            errorEl.classList.add('show');
-        }
+            dismissSavePrompt();
+        } catch (err) { errorEl.textContent = 'Something went wrong. Try again.'; errorEl.classList.add('show'); }
     }
 
     function updateUILoggedIn(name) {
@@ -853,8 +915,7 @@
     }
 
     function handleLogout() {
-        authToken = null;
-        currentUser = null;
+        authToken = null; currentUser = null;
         localStorage.removeItem('mediscan_token');
         localStorage.removeItem('mediscan_user');
         document.getElementById('authButtons').style.display = 'flex';
@@ -867,27 +928,29 @@
     async function loadServerHistory() {
         if (!authToken) return;
         try {
-            const res = await fetch('/history', {
-                headers: { 'Authorization': 'Bearer ' + authToken }
-            });
+            const res = await fetch('/history', { headers: { 'Authorization': 'Bearer ' + authToken } });
             const data = await res.json();
             if (data.history && data.history.length > 0) {
-                reportHistory = data.history.map(h => ({
-                    fileName: h.file_name,
-                    analysis: h.analysis,
-                    date: new Date(h.date).toLocaleString()
-                }));
+                reportHistory = data.history.map(h => ({ fileName: h.file_name, analysis: h.analysis, date: new Date(h.date).toLocaleString() }));
                 renderHistory();
             }
         } catch (err) {}
     }
 
-    // Upload handlers
+    // Save prompt
+    function showSavePrompt() {
+        if (!authToken) savePrompt.classList.add('show');
+    }
+
+    function dismissSavePrompt() {
+        savePrompt.classList.remove('show');
+    }
+
+    // Upload
     uploadBox.addEventListener('dragover', (e) => { e.preventDefault(); uploadBox.classList.add('dragover'); });
     uploadBox.addEventListener('dragleave', () => { uploadBox.classList.remove('dragover'); });
     uploadBox.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadBox.classList.remove('dragover');
+        e.preventDefault(); uploadBox.classList.remove('dragover');
         const file = e.dataTransfer.files[0];
         if (file && file.type === 'application/pdf') handleFile(file);
     });
@@ -905,6 +968,7 @@
         analyzeBtn.disabled = true;
         loader.classList.add('show');
         resultSection.classList.remove('show');
+        savePrompt.classList.remove('show');
 
         const formData = new FormData();
         formData.append('file', selectedFile);
@@ -923,6 +987,7 @@
                     .replace(/^\* (.+)/gm, '• $1')
                     .replace(/\n/g, '<br>');
                 saveToHistory(selectedFile.name, data.analysis);
+                showSavePrompt();
             }
 
             resultSection.classList.add('show');
@@ -988,13 +1053,8 @@
         let y = 54;
         lines.forEach(line => {
             if (y > 270) { doc.addPage(); y = 20; }
-            if (line.match(/^\d\./)) {
-                doc.setFont('helvetica', 'bold');
-                doc.setTextColor(79, 142, 247);
-            } else {
-                doc.setFont('helvetica', 'normal');
-                doc.setTextColor(30, 30, 30);
-            }
+            if (line.match(/^\d\./)) { doc.setFont('helvetica', 'bold'); doc.setTextColor(79, 142, 247); }
+            else { doc.setFont('helvetica', 'normal'); doc.setTextColor(30, 30, 30); }
             doc.text(line, 20, y);
             y += 7;
         });
@@ -1016,6 +1076,7 @@
         analyzeBtn.classList.remove('show');
         analyzeBtn.disabled = false;
         resultSection.classList.remove('show');
+        savePrompt.classList.remove('show');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 </script>
