@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediScan AI — Medical Report Analyzer</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -144,7 +143,6 @@
 
         .btn-logout:hover { color: #e2e8f0; }
 
-        /* Modal */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -180,7 +178,6 @@
         }
 
         .modal-close:hover { color: #e2e8f0; }
-
         .modal h2 { font-size: 24px; font-weight: 700; color: #e2e8f0; margin-bottom: 8px; }
         .modal p { font-size: 14px; color: #64748b; margin-bottom: 28px; }
 
@@ -266,7 +263,6 @@
 
         .error-msg.show { display: block; }
 
-        /* Hero */
         .hero { text-align: center; padding: 80px 20px 60px; }
 
         .hero-badge {
@@ -301,7 +297,6 @@
 
         .hero p { font-size: 18px; color: #64748b; max-width: 520px; margin: 0 auto 50px; line-height: 1.7; }
 
-        /* Upload */
         .upload-section { max-width: 680px; margin: 0 auto; padding: 0 20px; }
 
         .upload-box {
@@ -360,7 +355,6 @@
         }
 
         .file-selected.show { display: flex; }
-
         .file-selected span { font-size: 14px; color: #94a3b8; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
         .btn-analyze {
@@ -412,7 +406,6 @@
             text-align: center;
         }
 
-        /* Save Prompt */
         .save-prompt {
             max-width: 680px;
             margin: 20px auto 0;
@@ -433,23 +426,10 @@
             gap: 16px;
         }
 
-        .save-prompt-text h4 {
-            font-size: 15px;
-            font-weight: 600;
-            color: #e2e8f0;
-            margin-bottom: 4px;
-        }
+        .save-prompt-text h4 { font-size: 15px; font-weight: 600; color: #e2e8f0; margin-bottom: 4px; }
+        .save-prompt-text p { font-size: 13px; color: #64748b; }
 
-        .save-prompt-text p {
-            font-size: 13px;
-            color: #64748b;
-        }
-
-        .save-prompt-actions {
-            display: flex;
-            gap: 8px;
-            flex-shrink: 0;
-        }
+        .save-prompt-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
         .btn-save-login {
             padding: 9px 18px;
@@ -475,7 +455,6 @@
 
         .btn-save-dismiss:hover { color: #e2e8f0; }
 
-        /* Result */
         .result-section { max-width: 680px; margin: 40px auto; padding: 0 20px 60px; display: none; }
         .result-section.show { display: block; }
 
@@ -538,7 +517,6 @@
 
         .btn-reset:hover { color: #e2e8f0; border-color: rgba(255,255,255,0.2); }
 
-        /* History */
         .history-section { max-width: 680px; margin: 0 auto 40px; padding: 0 20px; display: none; }
         .history-section h2 { font-size: 20px; font-weight: 700; color: #e2e8f0; margin-bottom: 16px; }
 
@@ -560,7 +538,6 @@
         .history-name { font-size: 14px; font-weight: 500; color: #e2e8f0; }
         .history-date { font-size: 12px; color: #64748b; margin-top: 4px; }
 
-        /* Stats */
         .stats {
             display: flex;
             justify-content: center;
@@ -579,44 +556,43 @@
 </head>
 <body>
 
-<!-- Auth Modal -->
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
         <button class="modal-close" onclick="closeModal()">✕</button>
         <h2 id="modalTitle">Welcome to MediScan AI</h2>
         <p id="modalSubtitle">Sign in to save your report history permanently</p>
         <div class="modal-tabs">
-            <button class="modal-tab active" id="loginTab" onclick="switchTab('login')" data-en="Sign In" data-hi="लॉग इन">Sign In</button>
-            <button class="modal-tab" id="registerTab" onclick="switchTab('register')" data-en="Sign Up" data-hi="साइन अप">Sign Up</button>
+            <button class="modal-tab active" id="loginTab" onclick="switchTab('login')">Sign In</button>
+            <button class="modal-tab" id="registerTab" onclick="switchTab('register')">Sign Up</button>
         </div>
 
         <div id="loginForm">
             <div class="form-group">
-                <label id="labelLoginEmail">Email Address</label>
+                <label>Email Address</label>
                 <input type="email" id="loginEmail" placeholder="your@email.com">
             </div>
             <div class="form-group">
-                <label id="labelLoginPassword">Password</label>
+                <label>Password</label>
                 <input type="password" id="loginPassword" placeholder="••••••••">
             </div>
-            <button class="btn-submit" onclick="handleLogin()" id="btnLogin" data-en="Sign In" data-hi="लॉग इन">Sign In</button>
+            <button class="btn-submit" onclick="handleLogin()">Sign In</button>
             <div class="error-msg" id="loginError"></div>
         </div>
 
         <div id="registerForm" style="display:none;">
             <div class="form-group">
-                <label id="labelRegisterName">Full Name</label>
+                <label>Full Name</label>
                 <input type="text" id="registerName" placeholder="Rishav Kumar Singh">
             </div>
             <div class="form-group">
-                <label id="labelRegisterEmail">Email Address</label>
+                <label>Email Address</label>
                 <input type="email" id="registerEmail" placeholder="your@email.com">
             </div>
             <div class="form-group">
-                <label id="labelRegisterPassword">Password</label>
+                <label>Password</label>
                 <input type="password" id="registerPassword" placeholder="••••••••">
             </div>
-            <button class="btn-submit" onclick="handleRegister()" id="btnRegister" data-en="Create Account" data-hi="अकाउंट बनाएं">Create Account</button>
+            <button class="btn-submit" onclick="handleRegister()">Create Account</button>
             <div class="error-msg" id="registerError"></div>
         </div>
     </div>
@@ -631,13 +607,13 @@
         <div class="nav-badge" id="navBadge">Powered by Groq AI</div>
         <button class="btn-lang" onclick="toggleLanguage()" id="langBtn">हिंदी</button>
         <div id="authButtons" style="display:flex; gap:8px;">
-            <button class="btn-nav btn-nav-outline" onclick="openModal('login')" id="btnSignIn" data-en="Sign In" data-hi="लॉग इन">Sign In</button>
-            <button class="btn-nav btn-nav-primary" onclick="openModal('register')" id="btnSignUp" data-en="Sign Up" data-hi="साइन अप">Sign Up</button>
+            <button class="btn-nav btn-nav-outline" onclick="openModal('login')" id="btnSignIn">Sign In</button>
+            <button class="btn-nav btn-nav-primary" onclick="openModal('register')" id="btnSignUp">Sign Up</button>
         </div>
         <div class="user-info" id="userInfo">
             <div class="user-avatar" id="userAvatar">R</div>
             <span class="user-name" id="userName">Rishav</span>
-            <button class="btn-logout" onclick="handleLogout()" id="btnLogout" data-en="Logout" data-hi="लॉग आउट">Logout</button>
+            <button class="btn-logout" onclick="handleLogout()" id="btnLogout">Logout</button>
         </div>
     </div>
 </nav>
@@ -662,7 +638,7 @@
         <span id="fileName">No file selected</span>
     </div>
 
-    <button class="btn-analyze" id="analyzeBtn" onclick="analyzeReport()" data-en="Analyze Report" data-hi="रिपोर्ट विश्लेषण करें">Analyze Report</button>
+    <button class="btn-analyze" id="analyzeBtn" onclick="analyzeReport()">Analyze Report</button>
 
     <div class="loader" id="loader">
         <div class="spinner"></div>
@@ -674,7 +650,6 @@
     </div>
 </div>
 
-<!-- Save Prompt — shown after analysis if not logged in -->
 <div class="save-prompt" id="savePrompt">
     <div class="save-prompt-card">
         <div class="save-prompt-text">
@@ -682,8 +657,8 @@
             <p id="savePromptSubtitle">Login or sign up to keep your report history permanently — access it anytime.</p>
         </div>
         <div class="save-prompt-actions">
-            <button class="btn-save-login" onclick="openModal('register')" id="btnSaveLogin" data-en="Save Report" data-hi="रिपोर्ट सेव करें">Save Report</button>
-            <button class="btn-save-dismiss" onclick="dismissSavePrompt()" id="btnDismiss" data-en="Dismiss" data-hi="बंद करें">Dismiss</button>
+            <button class="btn-save-login" onclick="openModal('register')" id="btnSaveLogin">Save Report</button>
+            <button class="btn-save-dismiss" onclick="dismissSavePrompt()" id="btnDismiss">Dismiss</button>
         </div>
     </div>
 </div>
@@ -694,8 +669,8 @@
         <div class="result-badge" id="resultBadge">AI Verified</div>
     </div>
     <div class="result-card" id="resultCard"></div>
-    <button class="btn-export" onclick="exportPDF()" id="btnDownload" data-en="Download Analysis" data-hi="विश्लेषण डाउनलोड करें">Download Analysis</button>
-    <button class="btn-reset" onclick="resetApp()" id="btnAnalyzeAnother" data-en="Analyze Another Report" data-hi="दूसरी रिपोर्ट विश्लेषण करें">Analyze Another Report</button>
+    <button class="btn-export" onclick="exportReport()" id="btnDownload">Download Analysis</button>
+    <button class="btn-reset" onclick="resetApp()" id="btnAnalyzeAnother">Analyze Another Report</button>
 </div>
 
 <div class="history-section" id="historySection">
@@ -732,7 +707,6 @@
 
     if (authToken && currentUser) updateUILoggedIn(currentUser);
 
-    // Language translations
     const translations = {
         en: {
             heroBadge: 'AI-Powered Medical Analysis',
@@ -839,7 +813,6 @@
         document.getElementById('navBadge').textContent = t.navBadge;
         document.getElementById('footerText').textContent = t.footerText;
 
-        // Re-apply gradient to heroSpan
         const heroSpan = document.getElementById('heroSpan');
         if (heroSpan) {
             heroSpan.style.background = 'linear-gradient(135deg, #4f8ef7, #7c3aed)';
@@ -848,7 +821,6 @@
         }
     }
 
-    // Modal
     function openModal(tab) {
         document.getElementById('modalOverlay').classList.add('show');
         switchTab(tab);
@@ -937,7 +909,6 @@
         } catch (err) {}
     }
 
-    // Save prompt
     function showSavePrompt() {
         if (!authToken) savePrompt.classList.add('show');
     }
@@ -946,7 +917,6 @@
         savePrompt.classList.remove('show');
     }
 
-    // Upload
     uploadBox.addEventListener('dragover', (e) => { e.preventDefault(); uploadBox.classList.add('dragover'); });
     uploadBox.addEventListener('dragleave', () => { uploadBox.classList.remove('dragover'); });
     uploadBox.addEventListener('drop', (e) => {
@@ -973,8 +943,6 @@
         const formData = new FormData();
         formData.append('file', selectedFile);
         if (authToken) formData.append('token', authToken);
-        console.log('DEBUG language being sent:', currentLang);
-        console.log('DEBUG language being sent:', currentLang);
         formData.append('language', currentLang);
 
         try {
@@ -1032,44 +1000,65 @@
         resultSection.scrollIntoView({ behavior: 'smooth' });
     }
 
-    function exportPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.setFillColor(10, 15, 30);
-        doc.rect(0, 0, 210, 40, 'F');
-        doc.setTextColor(79, 142, 247);
-        doc.setFontSize(22);
-        doc.setFont('helvetica', 'bold');
-        doc.text('MediScan AI', 20, 20);
-        doc.setFontSize(11);
-        doc.setTextColor(150, 150, 170);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Medical Report Analysis', 20, 30);
-        doc.text('Generated: ' + new Date().toLocaleString(), 20, 38);
-        doc.setDrawColor(79, 142, 247);
-        doc.setLineWidth(0.5);
-        doc.line(20, 44, 190, 44);
-        doc.setTextColor(30, 30, 30);
-        doc.setFontSize(11);
-        const content = resultCard.innerText;
-        const lines = doc.splitTextToSize(content, 170);
-        let y = 54;
-        lines.forEach(line => {
-            if (y > 270) { doc.addPage(); y = 20; }
-            if (line.match(/^\d\./)) { doc.setFont('helvetica', 'bold'); doc.setTextColor(79, 142, 247); }
-            else { doc.setFont('helvetica', 'normal'); doc.setTextColor(30, 30, 30); }
-            doc.text(line, 20, y);
-            y += 7;
-        });
-        const pageCount = doc.internal.getNumberOfPages();
-        for (let i = 1; i <= pageCount; i++) {
-            doc.setPage(i);
-            doc.setFontSize(9);
-            doc.setTextColor(150, 150, 150);
-            doc.text('MediScan AI — For informational purposes only. Consult your doctor.', 20, 285);
-            doc.text('Page ' + i + ' of ' + pageCount, 180, 285);
+    function exportReport() {
+        const content = resultCard.innerHTML;
+        const isHindi = currentLang === 'hi';
+
+        const htmlContent = `<!DOCTYPE html>
+<html lang="${currentLang}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediScan AI - ${isHindi ? 'चिकित्सा रिपोर्ट विश्लेषण' : 'Medical Report Analysis'}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f8fafc; color: #1a1a2e; }
+        .header { background: linear-gradient(135deg, #4f8ef7, #7c3aed); color: white; padding: 30px 40px; }
+        .header h1 { font-size: 28px; margin-bottom: 6px; }
+        .header p { opacity: 0.85; font-size: 14px; margin: 4px 0; }
+        .body { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+        .content { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 36px; line-height: 1.9; font-size: 15px; }
+        .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #94a3b8; padding-bottom: 40px; }
+        strong { color: #1e293b; font-weight: 700; }
+        br { display: block; margin: 4px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>MediScan AI</h1>
+        <p>${isHindi ? 'चिकित्सा रिपोर्ट विश्लेषण' : 'Medical Report Analysis'}</p>
+        <p>${isHindi ? 'तैयार किया गया:' : 'Generated:'} ${new Date().toLocaleString()}</p>
+    </div>
+    <div class="body">
+        <div class="content">${content}</div>
+        <div class="footer">MediScan AI — ${isHindi ? 'केवल सूचनात्मक उद्देश्यों के लिए। हमेशा अपने डॉक्टर से परामर्श करें।' : 'For informational purposes only. Always consult your doctor.'}</div>
+    </div>
+</body>
+</html>`;
+
+        const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        
+        // Open in new tab and trigger print dialog for PDF save
+        const newTab = window.open(url, '_blank');
+        if (newTab) {
+            newTab.onload = function() {
+                setTimeout(() => {
+                    newTab.print();
+                }, 500);
+            };
+        } else {
+            // Fallback: download file if popup blocked
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = isHindi ? 'MediScan-विश्लेषण.html' : 'MediScan-Analysis.html';
+            a.click();
+            URL.revokeObjectURL(url);
+            alert(isHindi 
+                ? 'फ़ाइल डाउनलोड हो गई। इसे ब्राउज़र में खोलें और Ctrl+P दबाकर PDF में सेव करें।'
+                : 'File downloaded. Open it in your browser and press Ctrl+P to save as PDF.'
+            );
         }
-        doc.save('MediScan-Analysis.pdf');
     }
 
     function resetApp() {
