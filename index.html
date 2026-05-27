@@ -611,6 +611,73 @@ nav {
 }
 .site-footer a { color: var(--text2); text-decoration: none; }
 .site-footer a:hover { color: var(--text); }
+/* ── MODE TOGGLE ── */
+.mode-toggle-row {
+  display: flex; align-items: center; gap: 10px;
+  justify-content: center; margin-bottom: 14px;
+}
+.mode-label {
+  font-size: 13px; font-weight: 500; color: var(--text3);
+  transition: color 0.2s;
+}
+.mode-label.active { color: var(--text); }
+.mode-toggle {
+  width: 44px; height: 24px;
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  position: relative; cursor: pointer;
+  transition: all 0.3s;
+}
+.mode-toggle.doctor-on { background: linear-gradient(110deg, var(--accent), var(--accent2)); border-color: transparent; }
+.mode-toggle-thumb {
+  position: absolute; top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  background: white; border-radius: 50%;
+  transition: all 0.3s;
+}
+.mode-toggle.doctor-on .mode-toggle-thumb { left: 23px; }
+.mode-lock { font-size: 13px; cursor: default; }
+
+/* ── LIFESTYLE ── */
+.lifestyle-wrapper {
+  max-width: 680px; margin: 20px auto 0; padding: 0 20px;
+  display: none; position: relative; z-index: 1;
+}
+.lifestyle-wrapper.show { display: block; }
+.lifestyle-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.lifestyle-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.lifestyle-header-left { display: flex; align-items: center; gap: 10px; }
+.lifestyle-title { font-size: 15px; font-weight: 600; color: var(--text); }
+.lifestyle-body { padding: 20px 24px; }
+.lifestyle-section { margin-bottom: 20px; }
+.lifestyle-section:last-child { margin-bottom: 0; }
+.lifestyle-section-title {
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--text3); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 6px;
+}
+.lifestyle-tips { display: flex; flex-direction: column; gap: 8px; }
+.lifestyle-tip {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 10px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px; color: var(--text2); line-height: 1.6;
+}
+.tip-icon { flex-shrink: 0; font-size: 15px; margin-top: 1px; }
 /* ── CHAT ── */
 .chat-wrapper {
   max-width: 680px; margin: 20px auto 0; padding: 0 20px;
@@ -870,6 +937,14 @@ nav {
 </div>
 
 <div class="analyze-wrap">
+  <div class="mode-toggle-row">
+    <span class="mode-label" id="modeLabelPatient">Patient view</span>
+    <div class="mode-toggle" id="modeToggle" onclick="toggleMode()">
+      <div class="mode-toggle-thumb" id="modeThumb"></div>
+    </div>
+    <span class="mode-label" id="modeLabelDoctor">Doctor view</span>
+    <span class="mode-lock" title="For medical professionals only">🔒</span>
+  </div>
   <button class="btn-analyze" id="analyzeBtn" onclick="analyzeReport()">
     <span id="analyzeBtnText">Analyze report</span>
   </button>
@@ -921,6 +996,28 @@ nav {
     </div>
   </div>
   <div class="result-card" id="resultCard"></div>
+</div>
+<!-- LIFESTYLE SECTION -->
+<div class="lifestyle-wrapper" id="lifestyleWrapper">
+  <div class="lifestyle-card">
+    <div class="lifestyle-header" onclick="toggleLifestyle()">
+      <div class="lifestyle-header-left">
+        <span>🥗</span>
+        <div class="lifestyle-title" id="lifestyleTitle">Diet & Lifestyle Recommendations</div>
+      </div>
+      <div class="badge badge-success">Personalized</div>
+    </div>
+    <div class="lifestyle-body" id="lifestyleBody">
+      <div class="lifestyle-section">
+        <div class="lifestyle-section-title">🥦 Diet Tips</div>
+        <div class="lifestyle-tips" id="dietTips"></div>
+      </div>
+      <div class="lifestyle-section">
+        <div class="lifestyle-section-title">🏃 Exercise Tips</div>
+        <div class="lifestyle-tips" id="exerciseTips"></div>
+      </div>
+    </div>
+  </div>
 </div>
 <!-- CHAT SECTION -->
 <div class="chat-wrapper" id="chatWrapper">
@@ -1107,6 +1204,7 @@ async function analyzeReport() {
   fd.append('file', selectedFile);
   if (authToken) fd.append('token', authToken);
   fd.append('language', currentLang);
+  fd.append('mode', currentMode);
 
   try {
     const res = await fetch('/analyze', { method:'POST', body:fd });
@@ -1119,6 +1217,7 @@ async function analyzeReport() {
       renderResult(data.analysis);
       currentAnalysis = data.analysis;
       showChat();
+      renderLifestyle(data.lifestyle);
       saveToHistory(selectedFile.name, data.analysis);
       if (!authToken) document.getElementById('savePrompt').classList.add('show');
     }
@@ -1323,6 +1422,48 @@ ${content}
     a.download = 'MediScan-Analysis.html'; a.click();
     URL.revokeObjectURL(url);
   }
+}
+// ── MODE TOGGLE ──
+let currentMode = 'patient';
+
+function toggleMode() {
+    currentMode = currentMode === 'patient' ? 'doctor' : 'patient';
+    const toggle = document.getElementById('modeToggle');
+    const patientLabel = document.getElementById('modeLabelPatient');
+    const doctorLabel = document.getElementById('modeLabelDoctor');
+    if (currentMode === 'doctor') {
+        toggle.classList.add('doctor-on');
+        patientLabel.classList.remove('active');
+        doctorLabel.classList.add('active');
+    } else {
+        toggle.classList.remove('doctor-on');
+        patientLabel.classList.add('active');
+        doctorLabel.classList.remove('active');
+    }
+}
+
+// ── LIFESTYLE ──
+function toggleLifestyle() {
+    const body = document.getElementById('lifestyleBody');
+    body.style.display = body.style.display === 'none' ? 'block' : 'none';
+}
+
+function renderLifestyle(lifestyle) {
+    if (!lifestyle || (!lifestyle.diet?.length && !lifestyle.exercise?.length)) return;
+    
+    const wrapper = document.getElementById('lifestyleWrapper');
+    const dietEl = document.getElementById('dietTips');
+    const exerciseEl = document.getElementById('exerciseTips');
+
+    dietEl.innerHTML = (lifestyle.diet || []).map(tip => 
+        `<div class="lifestyle-tip"><span class="tip-icon">🥗</span><span>${tip}</span></div>`
+    ).join('');
+
+    exerciseEl.innerHTML = (lifestyle.exercise || []).map(tip => 
+        `<div class="lifestyle-tip"><span class="tip-icon">🏃</span><span>${tip}</span></div>`
+    ).join('');
+
+    wrapper.classList.add('show');
 }
 // ── CHAT ──
 let currentAnalysis = '';

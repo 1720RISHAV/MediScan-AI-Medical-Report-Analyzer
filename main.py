@@ -97,6 +97,7 @@ async def analyze_report(
     file: UploadFile = File(...),
     token: Optional[str] = Form(None),
     language: Optional[str] = Form(None),
+    mode: Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
     contents = await file.read()
@@ -123,7 +124,33 @@ async def analyze_report(
     if not text.strip():
         return {"error": "Could not extract text from file. For images, ensure the photo is clear and well-lit with visible text."}
 
-    english_prompt = f"""
+    if mode == "doctor":
+        english_prompt = f"""
+You are a senior clinician reviewing a medical report. Provide a detailed clinical analysis including:
+
+1. **Clinical Summary**: Brief overview using medical terminology.
+
+2. **Parameter Analysis**: For each value provide:
+   - Parameter name with reference ranges
+   - Patient value vs normal range
+   - Clinical significance
+   - ICD-10 codes where applicable
+
+3. **Differential Diagnosis**: List possible conditions based on findings, ranked by likelihood.
+
+4. **Risk Stratification**: Classify overall risk as Low, Moderate, High, or Critical with justification.
+
+5. **Clinical Recommendations**: Specific investigations, referrals, and treatment considerations.
+
+6. **Follow-up Protocol**: Recommended monitoring intervals and parameters.
+
+Use clinical terminology. Be precise and evidence-based.
+
+Medical Report:
+{text[:4000]}
+"""
+    else:
+        english_prompt = f"""
 You are a senior medical expert with 20 years of experience explaining medical reports to patients.
 
 Analyze this medical report thoroughly and provide:
@@ -160,6 +187,35 @@ Medical Report:
     )
     analysis = english_response.choices[0].message.content
 
+    # Diet & lifestyle recommendations (separate call)
+    lifestyle_prompt = f"""Based on this medical report analysis, provide exactly:
+- 5 specific diet tips
+- 3 specific exercise tips
+
+Return ONLY a JSON object in this exact format, nothing else:
+{{"diet": ["tip1", "tip2", "tip3", "tip4", "tip5"], "exercise": ["tip1", "tip2", "tip3"]}}
+
+Medical report:
+{text[:2000]}"""
+
+    lifestyle_response = client.chat.completions.create(
+        messages=[{"role": "user", "content": lifestyle_prompt}],
+        model="llama-3.3-70b-versatile",
+    )
+    lifestyle_raw = lifestyle_response.choices[0].message.content
+
+    try:
+        import json
+        # Clean up response
+        lifestyle_raw = lifestyle_raw.strip()
+        if lifestyle_raw.startswith("```"):
+            lifestyle_raw = lifestyle_raw.split("```")[1]
+            if lifestyle_raw.startswith("json"):
+                lifestyle_raw = lifestyle_raw[4:]
+        lifestyle = json.loads(lifestyle_raw.strip())
+    except:
+        lifestyle = {"diet": [], "exercise": []}
+
     if language == "hi":
         hindi_prompt = f"""You are a professional Hindi translator. Translate the following medical analysis to Hindi (Devanagari script).
 
@@ -195,7 +251,7 @@ Text to translate:
         except:
             pass
 
-    return {"analysis": analysis}
+    return {"analysis": analysis, "lifestyle": lifestyle, "mode": mode}
 
 @app.post("/chat")
 async def chat_with_report(
