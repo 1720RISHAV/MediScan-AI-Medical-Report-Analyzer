@@ -8,6 +8,9 @@ from passlib.context import CryptContext
 from pydantic import BaseModel
 from typing import Optional
 import fitz
+import pytesseract
+from PIL import Image
+import io
 import os
 from dotenv import load_dotenv
 from groq import Groq
@@ -26,6 +29,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 app = FastAPI()
+
+IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'bmp', 'tiff', 'tif', 'webp']
 
 class UserCreate(BaseModel):
     name: str
@@ -94,16 +99,34 @@ async def analyze_report(
     language: Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
-    print(f"DEBUG: language = {language}")
-
     contents = await file.read()
-    pdf = fitz.open(stream=contents, filetype="pdf")
     text = ""
-    for page in pdf:
-        text += page.get_text()
+
+    file_ext = file.filename.split('.')[-1].lower() if file.filename else ""
+
+    if file_ext in IMAGE_EXTENSIONS:
+        # OCR for image files
+        try:
+            image = Image.open(io.BytesIO(contents))
+            # Convert to RGB if needed
+            if image.mode not in ('RGB', 'L'):
+                image = image.convert('RGB')
+            text = pytesseract.image_to_string(image)
+            print(f"DEBUG: OCR extracted {len(text)} characters")
+        except Exception as e:
+            print(f"DEBUG: OCR error: {e}")
+            return {"error": f"Could not process image: {str(e)}"}
+    else:
+        # PDF extraction
+        try:
+            pdf = fitz.open(stream=contents, filetype="pdf")
+            for page in pdf:
+                text += page.get_text()
+        except Exception as e:
+            return {"error": f"Could not read PDF: {str(e)}"}
 
     if not text.strip():
-        return {"error": "Could not extract text from PDF"}
+        return {"error": "Could not extract text from file. For images, ensure the photo is clear and well-lit with visible text."}
 
     # Step 1: English analysis
     english_prompt = f"""
@@ -142,11 +165,9 @@ Medical Report:
         model="llama-3.3-70b-versatile",
     )
     analysis = english_response.choices[0].message.content
-    print(f"DEBUG: English analysis done, language={language}")
 
     # Step 2: Translate to Hindi if requested
     if language == "hi":
-        print("DEBUG: Translating to Hindi...")
         hindi_prompt = f"""You are a professional Hindi translator. Translate the following medical analysis to Hindi (Devanagari script).
 
 Rules:
@@ -164,7 +185,6 @@ Text to translate:
             model="llama-3.3-70b-versatile",
         )
         analysis = hindi_response.choices[0].message.content
-        print("DEBUG: Hindi translation done")
 
     if token:
         try:

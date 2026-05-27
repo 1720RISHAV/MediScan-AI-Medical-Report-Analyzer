@@ -1,1077 +1,1233 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediScan AI — Medical Report Analyzer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #0a0f1e;
-            color: #e2e8f0;
-            min-height: 100vh;
-        }
-
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 60px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            background: rgba(10,15,30,0.95);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(10px);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 20px;
-            font-weight: 700;
-            color: #fff;
-        }
-
-        .logo span { color: #4f8ef7; }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, #4f8ef7, #7c3aed);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 700;
-            color: white;
-        }
-
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .nav-badge {
-            background: rgba(79,142,247,0.15);
-            border: 1px solid rgba(79,142,247,0.3);
-            color: #4f8ef7;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .btn-lang {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: #94a3b8;
-            padding: 7px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-lang:hover { color: #e2e8f0; border-color: rgba(255,255,255,0.2); }
-
-        .btn-nav {
-            padding: 8px 18px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
-        }
-
-        .btn-nav-outline {
-            background: transparent;
-            color: #94a3b8;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .btn-nav-outline:hover { color: #e2e8f0; border-color: rgba(255,255,255,0.2); }
-
-        .btn-nav-primary {
-            background: linear-gradient(135deg, #4f8ef7, #7c3aed);
-            color: white;
-        }
-
-        .btn-nav-primary:hover { opacity: 0.9; }
-
-        .user-info {
-            display: none;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .user-info.show { display: flex; }
-
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, #4f8ef7, #7c3aed);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: 700;
-            color: white;
-        }
-
-        .user-name { font-size: 14px; font-weight: 500; color: #e2e8f0; }
-
-        .btn-logout {
-            background: transparent;
-            color: #64748b;
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-logout:hover { color: #e2e8f0; }
-
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-overlay.show { display: flex; }
-
-        .modal {
-            background: #0f1629;
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 20px;
-            padding: 40px;
-            width: 100%;
-            max-width: 420px;
-            position: relative;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 16px;
-            right: 20px;
-            background: none;
-            border: none;
-            color: #64748b;
-            font-size: 20px;
-            cursor: pointer;
-        }
-
-        .modal-close:hover { color: #e2e8f0; }
-        .modal h2 { font-size: 24px; font-weight: 700; color: #e2e8f0; margin-bottom: 8px; }
-        .modal p { font-size: 14px; color: #64748b; margin-bottom: 28px; }
-
-        .modal-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 28px;
-            background: rgba(255,255,255,0.03);
-            padding: 4px;
-            border-radius: 10px;
-        }
-
-        .modal-tab {
-            flex: 1;
-            padding: 10px;
-            background: transparent;
-            border: none;
-            color: #64748b;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .modal-tab.active {
-            background: linear-gradient(135deg, #4f8ef7, #7c3aed);
-            color: white;
-        }
-
-        .form-group { margin-bottom: 16px; }
-
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
-            color: #94a3b8;
-            margin-bottom: 8px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px;
-            color: #e2e8f0;
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.3s ease;
-            outline: none;
-        }
-
-        .form-group input:focus {
-            border-color: rgba(79,142,247,0.5);
-            background: rgba(79,142,247,0.05);
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #4f8ef7, #7c3aed);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 8px;
-        }
-
-        .btn-submit:hover { opacity: 0.9; }
-        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        .error-msg {
-            color: #ef4444;
-            font-size: 13px;
-            margin-top: 12px;
-            text-align: center;
-            display: none;
-        }
-
-        .error-msg.show { display: block; }
-
-        .hero { text-align: center; padding: 80px 20px 60px; }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(79,142,247,0.1);
-            border: 1px solid rgba(79,142,247,0.25);
-            color: #4f8ef7;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
-            margin-bottom: 24px;
-        }
-
-        .hero h1 {
-            font-size: 52px;
-            font-weight: 700;
-            line-height: 1.15;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero h1 span {
-            background: linear-gradient(135deg, #4f8ef7, #7c3aed);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero p { font-size: 18px; color: #64748b; max-width: 520px; margin: 0 auto 50px; line-height: 1.7; }
-
-        .upload-section { max-width: 680px; margin: 0 auto; padding: 0 20px; }
-
-        .upload-box {
-            border: 2px dashed rgba(79,142,247,0.3);
-            border-radius: 20px;
-            padding: 60px 40px;
-            text-align: center;
-            background: rgba(255,255,255,0.02);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .upload-box:hover { border-color: rgba(79,142,247,0.6); background: rgba(79,142,247,0.05); transform: translateY(-2px); }
-        .upload-box.dragover { border-color: #4f8ef7; background: rgba(79,142,247,0.08); }
-
-        .upload-icon {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, rgba(79,142,247,0.2), rgba(124,58,237,0.2));
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 28px;
-        }
-
-        .upload-box h3 { font-size: 18px; font-weight: 600; color: #e2e8f0; margin-bottom: 8px; }
-        .upload-box p { color: #64748b; font-size: 14px; margin-bottom: 24px; }
-
-        #fileInput { display: none; }
-
-        .btn-upload {
-            background: linear-gradient(135deg, #4f8ef7, #7c3aed);
-            color: white;
-            border: none;
-            padding: 12px 28px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-upload:hover { opacity: 0.9; transform: translateY(-1px); }
-
-        .file-selected {
-            margin-top: 20px;
-            padding: 14px 20px;
-            background: rgba(79,142,247,0.1);
-            border: 1px solid rgba(79,142,247,0.25);
-            border-radius: 10px;
-            display: none;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .file-selected.show { display: flex; }
-        .file-selected span { font-size: 14px; color: #94a3b8; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-        .btn-analyze {
-            width: 100%;
-            margin-top: 20px;
-            padding: 16px;
-            background: linear-gradient(135deg, #4f8ef7, #7c3aed);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: none;
-        }
-
-        .btn-analyze.show { display: block; }
-        .btn-analyze:hover { opacity: 0.9; transform: translateY(-1px); }
-        .btn-analyze:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-        .loader { display: none; text-align: center; padding: 40px; }
-        .loader.show { display: block; }
-
-        .spinner {
-            width: 48px;
-            height: 48px;
-            border: 3px solid rgba(79,142,247,0.2);
-            border-top-color: #4f8ef7;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 16px;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .loader p { color: #64748b; font-size: 15px; }
-        .loader p span { color: #4f8ef7; font-weight: 500; }
-
-        .disclaimer {
-            max-width: 600px;
-            margin: 30px auto 0;
-            padding: 16px 20px;
-            background: rgba(234,179,8,0.05);
-            border: 1px solid rgba(234,179,8,0.15);
-            border-radius: 10px;
-            font-size: 13px;
-            color: #854d0e;
-            text-align: center;
-        }
-
-        .save-prompt {
-            max-width: 680px;
-            margin: 20px auto 0;
-            padding: 0 20px;
-            display: none;
-        }
-
-        .save-prompt.show { display: block; }
-
-        .save-prompt-card {
-            background: linear-gradient(135deg, rgba(79,142,247,0.08), rgba(124,58,237,0.08));
-            border: 1px solid rgba(79,142,247,0.25);
-            border-radius: 16px;
-            padding: 20px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-        }
-
-        .save-prompt-text h4 { font-size: 15px; font-weight: 600; color: #e2e8f0; margin-bottom: 4px; }
-        .save-prompt-text p { font-size: 13px; color: #64748b; }
-
-        .save-prompt-actions { display: flex; gap: 8px; flex-shrink: 0; }
-
-        .btn-save-login {
-            padding: 9px 18px;
-            background: linear-gradient(135deg, #4f8ef7, #7c3aed);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .btn-save-dismiss {
-            padding: 9px 14px;
-            background: transparent;
-            color: #64748b;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px;
-            font-size: 13px;
-            cursor: pointer;
-        }
-
-        .btn-save-dismiss:hover { color: #e2e8f0; }
-
-        .result-section { max-width: 680px; margin: 40px auto; padding: 0 20px 60px; display: none; }
-        .result-section.show { display: block; }
-
-        .result-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
-        .result-header h2 { font-size: 22px; font-weight: 700; color: #e2e8f0; }
-
-        .result-badge {
-            background: rgba(34,197,94,0.15);
-            border: 1px solid rgba(34,197,94,0.3);
-            color: #22c55e;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .result-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.07);
-            border-radius: 16px;
-            padding: 32px;
-            line-height: 1.8;
-            color: #cbd5e1;
-            font-size: 15px;
-            white-space: pre-wrap;
-        }
-
-        .result-card strong { color: #e2e8f0; }
-
-        .btn-export {
-            width: 100%;
-            margin-top: 16px;
-            padding: 14px;
-            background: transparent;
-            color: #4f8ef7;
-            border: 1px solid rgba(79,142,247,0.4);
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: block;
-        }
-
-        .btn-export:hover { background: rgba(79,142,247,0.08); }
-
-        .btn-reset {
-            width: 100%;
-            margin-top: 12px;
-            padding: 12px 28px;
-            background: transparent;
-            color: #64748b;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 10px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: block;
-        }
-
-        .btn-reset:hover { color: #e2e8f0; border-color: rgba(255,255,255,0.2); }
-
-        .history-section { max-width: 680px; margin: 0 auto 40px; padding: 0 20px; display: none; }
-        .history-section h2 { font-size: 20px; font-weight: 700; color: #e2e8f0; margin-bottom: 16px; }
-
-        .history-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 14px 20px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.07);
-            border-radius: 12px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .history-item:hover { background: rgba(79,142,247,0.08); border-color: rgba(79,142,247,0.3); }
-        .history-icon { font-size: 24px; }
-        .history-name { font-size: 14px; font-weight: 500; color: #e2e8f0; }
-        .history-date { font-size: 12px; color: #64748b; margin-top: 4px; }
-
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 60px;
-            padding: 40px 20px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            margin: 60px 0 0;
-        }
-
-        .stat h3 { font-size: 28px; font-weight: 700; color: #4f8ef7; text-align: center; }
-        .stat p { font-size: 13px; color: #64748b; text-align: center; margin-top: 4px; }
-
-        footer { text-align: center; padding: 30px; color: #334155; font-size: 13px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediScan AI — Medical Report Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06080f;
+  --surface: #0c1018;
+  --surface2: #111620;
+  --surface3: #161c28;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.1);
+  --text: #f0f2f7;
+  --text2: #8892a4;
+  --text3: #4f5a6e;
+  --accent: #3b82f6;
+  --accent2: #6366f1;
+  --accent-glow: rgba(59,130,246,0.15);
+  --success: #10b981;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --radius-lg: 20px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── NOISE TEXTURE ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+/* ── GLOW ORBS ── */
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+}
+.orb-1 { width: 500px; height: 500px; background: rgba(59,130,246,0.07); top: -200px; right: -100px; }
+.orb-2 { width: 400px; height: 400px; background: rgba(99,102,241,0.06); bottom: 200px; left: -150px; }
+
+/* ── NAV ── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px;
+  height: 64px;
+  background: rgba(6,8,15,0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'DM Serif Display', serif;
+  font-size: 19px; color: var(--text);
+  text-decoration: none;
+}
+
+.logo-mark {
+  width: 30px; height: 30px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 700; color: #fff;
+}
+
+.logo em { color: var(--accent); font-style: normal; }
+
+.nav-center {
+  display: flex; align-items: center; gap: 6px;
+}
+
+.nav-pill {
+  padding: 5px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 12px; font-weight: 500;
+  color: var(--text2);
+  letter-spacing: 0.01em;
+}
+
+.nav-pill.live::before {
+  content: '';
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+  margin-right: 6px;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:0.5; transform:scale(0.8); }
+}
+
+.nav-right { display: flex; align-items: center; gap: 8px; }
+
+.btn { cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; transition: all 0.2s; border: none; }
+.btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border); padding: 7px 14px; border-radius: var(--radius-sm); }
+.btn-ghost:hover { color: var(--text); border-color: var(--border2); }
+.btn-primary { background: var(--accent); color: #fff; padding: 8px 16px; border-radius: var(--radius-sm); }
+.btn-primary:hover { background: #2563eb; }
+.btn-lang {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text2); padding: 6px 12px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  transition: all 0.2s; letter-spacing: 0.02em;
+}
+.btn-lang:hover { color: var(--text); border-color: var(--border2); }
+
+.user-info { display:none; align-items:center; gap:10px; }
+.user-info.show { display:flex; }
+.user-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff;
+}
+.user-name { font-size: 13px; font-weight: 500; color: var(--text); }
+
+/* ── HERO ── */
+.hero {
+  position: relative; z-index: 1;
+  text-align: center;
+  padding: 90px 24px 70px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px;
+  background: rgba(59,130,246,0.08);
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: 20px;
+  font-size: 12px; font-weight: 500;
+  color: var(--accent);
+  letter-spacing: 0.05em; text-transform: uppercase;
+  margin-bottom: 28px;
+}
+
+.hero h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(36px, 6vw, 58px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+
+.hero h1 .highlight {
+  font-style: italic;
+  background: linear-gradient(110deg, var(--accent) 0%, var(--accent2) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+.hero-sub {
+  font-size: 16px; line-height: 1.7;
+  color: var(--text2);
+  max-width: 480px;
+  margin: 0 auto 50px;
+  font-weight: 300;
+}
+
+/* ── STATS ROW ── */
+.stats-row {
+  display: flex; justify-content: center; gap: 0;
+  margin-bottom: 50px;
+}
+
+.stat-item {
+  padding: 16px 32px;
+  border-right: 1px solid var(--border);
+  text-align: center;
+}
+.stat-item:last-child { border-right: none; }
+.stat-num { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--text); }
+.stat-lbl { font-size: 11px; color: var(--text3); margin-top: 2px; letter-spacing: 0.04em; text-transform: uppercase; }
+
+/* ── UPLOAD CARD ── */
+.upload-wrapper {
+  position: relative; z-index: 1;
+  max-width: 620px; margin: 0 auto;
+  padding: 0 20px;
+}
+
+.upload-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+
+.upload-card:hover { border-color: var(--border2); }
+.upload-card.dragover { border-color: var(--accent); background: rgba(59,130,246,0.04); }
+
+.upload-inner {
+  padding: 48px 40px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Dotted pattern in upload */
+.upload-inner::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+}
+
+.upload-icon-wrap {
+  width: 72px; height: 72px;
+  border-radius: var(--radius);
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  position: relative; z-index: 1;
+  transition: all 0.3s;
+}
+
+.upload-card.dragover .upload-icon-wrap { background: var(--accent-glow); border-color: rgba(59,130,246,0.3); }
+
+.upload-icon-svg { width: 32px; height: 32px; stroke: var(--text2); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.upload-card.dragover .upload-icon-svg { stroke: var(--accent); }
+
+.upload-title { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 6px; position: relative; z-index:1; }
+.upload-sub { font-size: 13px; color: var(--text3); margin-bottom: 24px; position: relative; z-index:1; }
+
+#fileInput { display: none; }
+
+.btn-choose {
+  position: relative; z-index: 1;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 22px;
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.btn-choose:hover { background: var(--surface2); border-color: rgba(255,255,255,0.15); }
+
+/* File info bar */
+.file-bar {
+  display: none; align-items: center; gap: 12px;
+  padding: 14px 20px;
+  background: var(--surface2);
+  border-top: 1px solid var(--border);
+}
+.file-bar.show { display: flex; }
+.file-icon-sm {
+  width: 32px; height: 32px; border-radius: 7px;
+  background: rgba(59,130,246,0.12);
+  border: 1px solid rgba(59,130,246,0.2);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.file-icon-sm svg { width:16px; height:16px; stroke: var(--accent); fill:none; stroke-width:2; }
+.file-meta { flex:1; overflow:hidden; }
+.file-name { font-size: 13px; font-weight: 500; color: var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.file-size { font-size: 11px; color: var(--text3); margin-top:1px; }
+.file-status {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 500; color: var(--success);
+}
+
+/* File type icon variants */
+.file-icon-pdf { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.2); }
+.file-icon-pdf svg { stroke: #f87171; }
+.file-icon-img { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.2); }
+.file-icon-img svg { stroke: #34d399; }
+
+/* File type tag */
+.file-type-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 10px; flex-shrink:0; }
+.tag-pdf { background: rgba(239,68,68,0.1); color: #f87171; }
+.tag-img { background: rgba(16,185,129,0.1); color: #34d399; }
+.file-ready { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; color: var(--success); }
+.file-ready svg { width:12px; height:12px; stroke: currentColor; fill:none; stroke-width:2.5; }
+
+/* Format badges */
+.format-badges { display: flex; gap: 6px; justify-content: center; margin-bottom: 24px; position: relative; z-index:1; flex-wrap:wrap; }
+.format-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.03em; }
+.badge-pdf { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: #f87171; }
+.badge-img { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); color: #34d399; }
+
+/* Image preview */
+.img-preview-wrap { display: none; padding: 0 20px 20px; position: relative; z-index:1; }
+.img-preview-wrap.show { display: block; }
+.img-preview { width: 100%; max-height: 200px; object-fit: contain; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface2); }
+
+/* OCR note */
+.ocr-note { display: none; max-width: 580px; margin: 10px auto 0; padding: 0 20px; }
+.ocr-note.show { display: block; }
+.ocr-note-inner {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 12px 16px;
+  background: rgba(16,185,129,0.05);
+  border: 1px solid rgba(16,185,129,0.15);
+  border-radius: var(--radius-sm);
+  font-size: 12px; line-height: 1.6; color: #6ee7b7;
+}
+.ocr-note-inner span:first-child { flex-shrink: 0; }
+
+/* Analyze button */
+.analyze-wrap {
+  padding: 0 20px; max-width: 620px; margin: 14px auto 0;
+}
+.btn-analyze {
+  display: none; width: 100%;
+  padding: 15px;
+  background: linear-gradient(110deg, var(--accent), var(--accent2));
+  color: #fff; border: none; border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+  position: relative; overflow: hidden;
+}
+.btn-analyze.show { display: block; }
+.btn-analyze:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn-analyze:not(:disabled):hover { opacity: 0.92; transform: translateY(-1px); }
+.btn-analyze::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(rgba(255,255,255,0.05), transparent);
+}
+
+/* Disclaimer */
+.disclaimer-wrap { max-width: 580px; margin: 20px auto 0; padding: 0 20px; }
+.disclaimer {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 12px 16px;
+  background: rgba(245,158,11,0.05);
+  border: 1px solid rgba(245,158,11,0.12);
+  border-radius: var(--radius-sm);
+  font-size: 12px; line-height: 1.6; color: var(--text3);
+}
+.disclaimer-icon { font-size: 14px; flex-shrink:0; margin-top:1px; }
+
+/* ── LOADER ── */
+.loader { display:none; text-align:center; padding: 56px 20px; }
+.loader.show { display:block; }
+
+.loader-ring {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--surface3);
+  border-top-color: var(--accent);
+  animation: spin 0.9s linear infinite;
+  margin: 0 auto 20px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loader-steps {
+  display: flex; flex-direction: column; gap: 8px;
+  max-width: 260px; margin: 0 auto;
+}
+.loader-step {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px; color: var(--text3);
+  opacity: 0;
+  animation: step-in 0.4s ease forwards;
+}
+.loader-step:nth-child(1) { animation-delay: 0.2s; }
+.loader-step:nth-child(2) { animation-delay: 1.2s; }
+.loader-step:nth-child(3) { animation-delay: 2.4s; }
+.loader-step.active { color: var(--accent); border-color: rgba(59,130,246,0.2); background: rgba(59,130,246,0.04); }
+@keyframes step-in { to { opacity: 1; } }
+.step-dot { width:6px; height:6px; border-radius:50%; background: currentColor; flex-shrink:0; }
+
+/* ── RESULT ── */
+.result-wrapper {
+  max-width: 680px; margin: 40px auto; padding: 0 20px 80px;
+  display: none; position: relative; z-index: 1;
+}
+.result-wrapper.show { display: block; }
+
+.result-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.result-topbar-left { display: flex; align-items: center; gap: 12px; }
+.result-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--text); }
+.badge {
+  padding: 4px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.03em;
+}
+.badge-success { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); color: var(--success); }
+.badge-info { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); color: var(--accent); }
+
+.result-actions { display: flex; gap: 8px; }
+.btn-icon {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 500; color: var(--text2);
+  cursor: pointer; transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.btn-icon:hover { color: var(--text); border-color: var(--border2); }
+.btn-icon svg { width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2; }
+
+/* Result card — sections */
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.result-section-block {
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--border);
+}
+.result-section-block:last-child { border-bottom: none; }
+
+.result-section-label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 12px;
+}
+.section-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+}
+.dot-blue { background: var(--accent); }
+.dot-green { background: var(--success); }
+.dot-amber { background: var(--warn); }
+.dot-red { background: var(--danger); }
+.dot-purple { background: #8b5cf6; }
+.dot-gray { background: var(--text3); }
+
+.result-section-body {
+  font-size: 14px; line-height: 1.8;
+  color: #c8d0de;
+  white-space: pre-wrap;
+}
+.result-section-body strong { color: var(--text); font-weight: 600; }
+
+/* Raw fallback card */
+.result-raw {
+  padding: 28px;
+  font-size: 14px; line-height: 1.85;
+  color: #c8d0de;
+  white-space: pre-wrap;
+}
+.result-raw strong { color: var(--text); font-weight: 600; }
+
+/* ── SAVE PROMPT ── */
+.save-prompt {
+  display: none; max-width: 680px; margin: 12px auto 0; padding: 0 20px;
+}
+.save-prompt.show { display:block; }
+.save-card {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 16px 22px;
+  background: var(--surface2);
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: var(--radius);
+}
+.save-text { flex:1; }
+.save-text h4 { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom:2px; }
+.save-text p { font-size: 12px; color: var(--text3); }
+.save-actions { display: flex; gap:8px; flex-shrink:0; }
+.btn-save { padding: 8px 16px; background: var(--accent); color:#fff; border:none; border-radius:var(--radius-sm); font-size:13px; font-weight:500; cursor:pointer; font-family: 'DM Sans', sans-serif; }
+.btn-dismiss { padding: 8px 12px; background:transparent; color:var(--text3); border:1px solid var(--border); border-radius:var(--radius-sm); font-size:13px; cursor:pointer; font-family: 'DM Sans', sans-serif; }
+.btn-dismiss:hover { color: var(--text2); }
+
+/* ── HISTORY ── */
+.history-wrapper {
+  max-width: 680px; margin: 0 auto 60px; padding: 0 20px;
+  display: none; position: relative; z-index:1;
+}
+.section-title {
+  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--text3); margin-bottom: 12px;
+}
+
+.history-grid { display: flex; flex-direction: column; gap: 8px; }
+.history-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer; transition: all 0.2s;
+}
+.history-item:hover { border-color: var(--border2); background: var(--surface2); }
+.history-file-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: var(--surface3); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; flex-shrink:0;
+}
+.history-file-icon svg { width:16px; height:16px; stroke: var(--text3); fill:none; stroke-width:1.5; }
+.history-meta { flex:1; overflow:hidden; }
+.history-name { font-size: 13px; font-weight: 500; color: var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.history-date { font-size: 11px; color: var(--text3); margin-top:2px; }
+.history-arrow { color: var(--text3); font-size: 18px; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: none; align-items: center; justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 36px;
+  width: 100%; max-width: 400px;
+  position: relative;
+  animation: modal-in 0.25s ease;
+}
+@keyframes modal-in { from { opacity:0; transform: scale(0.96) translateY(8px); } }
+.modal-close {
+  position: absolute; top: 14px; right: 16px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text3); font-size: 18px; width: 28px; height: 28px;
+  border-radius: 6px; cursor: pointer; display:flex; align-items:center; justify-content:center;
+  transition: all 0.2s;
+}
+.modal-close:hover { color: var(--text); }
+.modal h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px; color: var(--text); margin-bottom: 6px;
+}
+.modal > p { font-size: 13px; color: var(--text3); margin-bottom: 24px; }
+.tab-row {
+  display: flex; gap: 0; margin-bottom: 24px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 3px;
+}
+.tab-btn {
+  flex:1; padding: 8px; background: transparent; border: none;
+  color: var(--text3); font-size: 13px; font-weight: 500;
+  cursor: pointer; border-radius: 6px; transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.tab-btn.active { background: var(--surface3); color: var(--text); }
+
+.form-group { margin-bottom: 14px; }
+.form-group label { display:block; font-size: 12px; font-weight: 500; color: var(--text3); margin-bottom: 6px; letter-spacing: 0.02em; }
+.form-group input {
+  width:100%; padding: 11px 14px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text); font-size: 14px; font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s; outline: none;
+}
+.form-group input:focus { border-color: rgba(59,130,246,0.4); background: rgba(59,130,246,0.04); }
+.form-group input::placeholder { color: var(--text3); }
+.btn-submit {
+  width:100%; padding: 13px;
+  background: linear-gradient(110deg, var(--accent), var(--accent2));
+  color:#fff; border:none; border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; margin-top: 6px;
+}
+.btn-submit:hover { opacity: 0.9; }
+.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+.error-msg { font-size: 12px; color: var(--danger); margin-top: 10px; text-align: center; display: none; }
+.error-msg.show { display: block; }
+
+/* ── FOOTER ── */
+.site-footer {
+  position: relative; z-index:1;
+  text-align: center; padding: 28px 20px;
+  border-top: 1px solid var(--border);
+  font-size: 12px; color: var(--text3);
+  line-height: 1.6;
+}
+.site-footer a { color: var(--text2); text-decoration: none; }
+.site-footer a:hover { color: var(--text); }
+
+/* ── RESET BTN ── */
+.btn-reset-full {
+  display: none; width: 100%; max-width: 620px; margin: 12px auto 0;
+  padding: 12px;
+  background: transparent; border: 1px solid var(--border);
+  border-radius: var(--radius); font-family: 'DM Sans', sans-serif;
+  font-size: 13px; color: var(--text3); cursor: pointer; transition: all 0.2s;
+}
+.btn-reset-full.show { display: block; }
+.btn-reset-full:hover { color: var(--text2); border-color: var(--border2); }
+.btn-reset-wrap { padding: 0 20px; max-width: 660px; margin: 0 auto; }
+
+/* ── ANIMATIONS ── */
+@keyframes fade-up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+.fade-up { animation: fade-up 0.5s ease forwards; }
+.delay-1 { animation-delay: 0.1s; opacity:0; }
+.delay-2 { animation-delay: 0.2s; opacity:0; }
+.delay-3 { animation-delay: 0.3s; opacity:0; }
+.delay-4 { animation-delay: 0.4s; opacity:0; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+
+@media (max-width: 600px) {
+  nav { padding: 0 16px; }
+  .nav-center { display: none; }
+  .hero { padding: 60px 20px 50px; }
+  .upload-inner { padding: 36px 24px; }
+  .stats-row { gap: 0; flex-wrap: wrap; }
+  .stat-item { padding: 12px 20px; }
+  .result-topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .modal { padding: 28px 20px; margin: 16px; }
+}
+</style>
 </head>
 <body>
 
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<!-- MODAL -->
 <div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
-        <button class="modal-close" onclick="closeModal()">✕</button>
-        <h2 id="modalTitle">Welcome to MediScan AI</h2>
-        <p id="modalSubtitle">Sign in to save your report history permanently</p>
-        <div class="modal-tabs">
-            <button class="modal-tab active" id="loginTab" onclick="switchTab('login')">Sign In</button>
-            <button class="modal-tab" id="registerTab" onclick="switchTab('register')">Sign Up</button>
-        </div>
-
-        <div id="loginForm">
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" id="loginEmail" placeholder="your@email.com">
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="loginPassword" placeholder="••••••••">
-            </div>
-            <button class="btn-submit" onclick="handleLogin()">Sign In</button>
-            <div class="error-msg" id="loginError"></div>
-        </div>
-
-        <div id="registerForm" style="display:none;">
-            <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" id="registerName" placeholder="Rishav Kumar Singh">
-            </div>
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" id="registerEmail" placeholder="your@email.com">
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="registerPassword" placeholder="••••••••">
-            </div>
-            <button class="btn-submit" onclick="handleRegister()">Create Account</button>
-            <div class="error-msg" id="registerError"></div>
-        </div>
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2 id="modalTitle">Welcome back</h2>
+    <p id="modalSub">Sign in to save and access your report history.</p>
+    <div class="tab-row">
+      <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')">Sign in</button>
+      <button class="tab-btn" id="tabRegister" onclick="switchTab('register')">Create account</button>
     </div>
+    <div id="loginForm">
+      <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="you@example.com"></div>
+      <div class="form-group"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••"></div>
+      <button class="btn-submit" onclick="handleLogin()">Sign in</button>
+      <div class="error-msg" id="loginError"></div>
+    </div>
+    <div id="registerForm" style="display:none">
+      <div class="form-group"><label>Full name</label><input type="text" id="regName" placeholder="Rishav Kumar Singh"></div>
+      <div class="form-group"><label>Email</label><input type="email" id="regEmail" placeholder="you@example.com"></div>
+      <div class="form-group"><label>Password</label><input type="password" id="regPassword" placeholder="••••••••"></div>
+      <button class="btn-submit" onclick="handleRegister()">Create account</button>
+      <div class="error-msg" id="regError"></div>
+    </div>
+  </div>
 </div>
 
+<!-- NAV -->
 <nav>
-    <div class="logo">
-        <div class="logo-icon">M</div>
-        Medi<span>Scan</span> AI
+  <a class="logo" href="#">
+    <div class="logo-mark">M</div>
+    Medi<em>Scan</em>
+  </a>
+  <div class="nav-center">
+    <div class="nav-pill live" id="navPill">Groq AI · Online</div>
+  </div>
+  <div class="nav-right">
+    <button class="btn-lang" onclick="toggleLanguage()" id="langBtn">हिंदी</button>
+    <div id="authBtns" style="display:flex;gap:6px;">
+      <button class="btn btn-ghost" onclick="openModal('login')" id="btnSignIn">Sign in</button>
+      <button class="btn btn-primary" onclick="openModal('register')" id="btnSignUp">Get started</button>
     </div>
-    <div class="nav-right">
-        <div class="nav-badge" id="navBadge">Powered by Groq AI</div>
-        <button class="btn-lang" onclick="toggleLanguage()" id="langBtn">हिंदी</button>
-        <div id="authButtons" style="display:flex; gap:8px;">
-            <button class="btn-nav btn-nav-outline" onclick="openModal('login')" id="btnSignIn">Sign In</button>
-            <button class="btn-nav btn-nav-primary" onclick="openModal('register')" id="btnSignUp">Sign Up</button>
-        </div>
-        <div class="user-info" id="userInfo">
-            <div class="user-avatar" id="userAvatar">R</div>
-            <span class="user-name" id="userName">Rishav</span>
-            <button class="btn-logout" onclick="handleLogout()" id="btnLogout">Logout</button>
-        </div>
+    <div class="user-info" id="userInfo">
+      <div class="user-avatar" id="userAvatar">R</div>
+      <span class="user-name" id="userName"></span>
+      <button class="btn btn-ghost" onclick="handleLogout()" id="btnLogout">Logout</button>
     </div>
+  </div>
 </nav>
 
-<div class="hero">
-    <div class="hero-badge" id="heroBadge">AI-Powered Medical Analysis</div>
-    <h1 id="heroTitle">Understand Your<br><span id="heroSpan">Medical Reports</span><br>Instantly</h1>
-    <p id="heroSubtitle">Upload any medical report and get a clear, simple explanation powered by advanced AI — no medical degree required.</p>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow fade-up">
+    <span>⚕</span>
+    <span id="eyebrowText">AI-Powered Medical Analysis</span>
+  </div>
+  <h1 class="fade-up delay-1">
+    <span id="h1Line1">Understand your</span><br>
+    <span class="highlight" id="h1Line2">medical reports</span><br>
+    <span id="h1Line3">in plain language</span>
+  </h1>
+  <p class="hero-sub fade-up delay-2" id="heroSub">Upload any blood test, lab result, or X-ray report. Get a clear, compassionate explanation — powered by advanced AI.</p>
+
+  <div class="stats-row fade-up delay-3">
+    <div class="stat-item"><div class="stat-num">15+</div><div class="stat-lbl" id="stat1Lbl">Report types</div></div>
+    <div class="stat-item"><div class="stat-num">&lt;10s</div><div class="stat-lbl" id="stat2Lbl">Analysis time</div></div>
+    <div class="stat-item"><div class="stat-num">2</div><div class="stat-lbl" id="stat3Lbl">Languages</div></div>
+  </div>
+</section>
+
+<!-- UPLOAD -->
+<div class="upload-wrapper fade-up delay-4">
+  <div class="upload-card" id="uploadCard">
+    <div class="upload-inner" onclick="document.getElementById('fileInput').click()"
+         ondragover="ev(event,'dragover')" ondragleave="ev(event,'dragleave')" ondrop="ev(event,'drop')">
+      <div class="upload-icon-wrap">
+        <svg class="upload-icon-svg" viewBox="0 0 24 24">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+      </div>
+      <div class="upload-title" id="uploadTitle">Drop your medical report here</div>
+      <div class="upload-sub" id="uploadSub">Supports PDF and images — blood tests, lab results, X-rays &amp; more</div>
+      <div class="format-badges">
+        <span class="format-badge badge-pdf">PDF</span>
+        <span class="format-badge badge-img">JPG</span>
+        <span class="format-badge badge-img">PNG</span>
+        <span class="format-badge badge-img">BMP</span>
+        <span class="format-badge badge-img">TIFF</span>
+      </div>
+      <button class="btn-choose" id="btnChoose">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+        </svg>
+        <span id="btnChooseText">Choose file</span>
+      </button>
+      <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png,.bmp,.tiff,.tif,.webp">
+    </div>
+
+    <!-- Image preview (only shown for image uploads) -->
+    <div class="img-preview-wrap" id="imgPreviewWrap">
+      <img id="imgPreview" class="img-preview" alt="Report preview">
+    </div>
+
+    <div class="file-bar" id="fileBar">
+      <div class="file-icon-sm file-icon-pdf" id="fileIconSm">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke-width:2;stroke:#f87171;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>
+      <div class="file-meta">
+        <div class="file-name" id="fileName">—</div>
+        <div class="file-size" id="fileSize">—</div>
+      </div>
+      <span class="file-type-tag tag-pdf" id="fileTypeTag">PDF</span>
+      <div class="file-ready">
+        <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;"><polyline points="20 6 9 17 4 12"/></svg>
+        Ready
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="upload-section">
-    <div class="upload-box" id="uploadBox">
-        <div class="upload-icon">📄</div>
-        <h3 id="uploadTitle">Drop your medical report here</h3>
-        <p id="uploadSubtitle">Supports PDF files — Blood tests, X-ray reports, Lab results & more</p>
-        <button class="btn-upload" onclick="document.getElementById('fileInput').click()" id="btnChooseFile">Choose File</button>
-        <input type="file" id="fileInput" accept=".pdf">
-    </div>
-
-    <div class="file-selected" id="fileSelected">
-        <span>📎</span>
-        <span id="fileName">No file selected</span>
-    </div>
-
-    <button class="btn-analyze" id="analyzeBtn" onclick="analyzeReport()">Analyze Report</button>
-
-    <div class="loader" id="loader">
-        <div class="spinner"></div>
-        <p id="loaderText">Analyzing your report with <span>Groq AI</span>...</p>
-    </div>
-
-    <div class="disclaimer" id="disclaimerText">
-        MediScan AI is for informational purposes only. Always consult a qualified healthcare professional for medical advice.
-    </div>
+<!-- OCR note (appears for image uploads) -->
+<div class="ocr-note" id="ocrNote">
+  <div class="ocr-note-inner">
+    <span>📷</span>
+    <span id="ocrNoteText">Image detected — Tesseract OCR will extract text before AI analysis. For best results, use a clear, well-lit photo with all text visible.</span>
+  </div>
 </div>
 
+<div class="analyze-wrap">
+  <button class="btn-analyze" id="analyzeBtn" onclick="analyzeReport()">
+    <span id="analyzeBtnText">Analyze report</span>
+  </button>
+</div>
+
+<div class="disclaimer-wrap">
+  <div class="disclaimer">
+    <span class="disclaimer-icon">⚠</span>
+    <span id="disclaimerText">MediScan AI is for informational purposes only. Always consult a qualified healthcare professional before making any medical decisions.</span>
+  </div>
+</div>
+
+<!-- LOADER -->
+<div class="loader" id="loader">
+  <div class="loader-ring"></div>
+  <div class="loader-steps">
+    <div class="loader-step active"><div class="step-dot"></div><span id="step1">Extracting text from file</span></div>
+    <div class="loader-step"><div class="step-dot"></div><span id="step2">Analyzing with Groq AI</span></div>
+    <div class="loader-step"><div class="step-dot"></div><span id="step3">Preparing your report</span></div>
+  </div>
+</div>
+
+<!-- SAVE PROMPT -->
 <div class="save-prompt" id="savePrompt">
-    <div class="save-prompt-card">
-        <div class="save-prompt-text">
-            <h4 id="savePromptTitle">Save this report to your account</h4>
-            <p id="savePromptSubtitle">Login or sign up to keep your report history permanently — access it anytime.</p>
-        </div>
-        <div class="save-prompt-actions">
-            <button class="btn-save-login" onclick="openModal('register')" id="btnSaveLogin">Save Report</button>
-            <button class="btn-save-dismiss" onclick="dismissSavePrompt()" id="btnDismiss">Dismiss</button>
-        </div>
+  <div class="save-card">
+    <div class="save-text">
+      <h4 id="saveTitle">Save to your account</h4>
+      <p id="saveSub">Sign in to keep your report history accessible anytime.</p>
     </div>
-</div>
-
-<div class="result-section" id="resultSection">
-    <div class="result-header">
-        <h2 id="resultTitle">Analysis Complete</h2>
-        <div class="result-badge" id="resultBadge">AI Verified</div>
+    <div class="save-actions">
+      <button class="btn-save" onclick="openModal('register')" id="btnSave">Save report</button>
+      <button class="btn-dismiss" onclick="dismissSave()" id="btnDismiss">Dismiss</button>
     </div>
-    <div class="result-card" id="resultCard"></div>
-    <button class="btn-export" onclick="exportReport()" id="btnDownload">Download Analysis</button>
-    <button class="btn-reset" onclick="resetApp()" id="btnAnalyzeAnother">Analyze Another Report</button>
+  </div>
 </div>
 
-<div class="history-section" id="historySection">
-    <h2 id="historyTitle">Recent Reports</h2>
-    <div id="historyList"></div>
+<!-- RESULT -->
+<div class="result-wrapper" id="resultWrapper">
+  <div class="result-topbar">
+    <div class="result-topbar-left">
+      <div class="result-title" id="resultTitle">Analysis complete</div>
+      <div class="badge badge-success" id="resultBadge">AI Verified</div>
+    </div>
+    <div class="result-actions">
+      <button class="btn-icon" onclick="exportReport()" id="btnDownload">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span id="btnDownloadText">Download</span>
+      </button>
+    </div>
+  </div>
+  <div class="result-card" id="resultCard"></div>
 </div>
 
-<div class="stats">
-    <div class="stat"><h3>15+</h3><p id="stat1">Report Types Supported</p></div>
-    <div class="stat"><h3>99%</h3><p id="stat2">Accuracy Rate</p></div>
-    <div class="stat"><h3>&lt;10s</h3><p id="stat3">Analysis Time</p></div>
+<div class="btn-reset-wrap">
+  <button class="btn-reset-full" id="btnReset" onclick="resetApp()">
+    <span id="btnResetText">↩ Analyze another report</span>
+  </button>
 </div>
 
-<footer id="footerText">© 2025 MediScan AI — Built by Rishav Kumar Singh</footer>
+<!-- HISTORY -->
+<div class="history-wrapper" id="historyWrapper">
+  <div class="section-title" id="historyTitle">Recent reports</div>
+  <div class="history-grid" id="historyGrid"></div>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer" id="footerEl">
+  © 2025 MediScan AI — Built by Rishav Kumar Singh &nbsp;·&nbsp;
+  <a href="#">Privacy</a> &nbsp;·&nbsp;
+  For informational use only
+</footer>
 
 <script>
-    const uploadBox = document.getElementById('uploadBox');
-    const fileInput = document.getElementById('fileInput');
-    const fileSelected = document.getElementById('fileSelected');
-    const fileName = document.getElementById('fileName');
-    const analyzeBtn = document.getElementById('analyzeBtn');
-    const loader = document.getElementById('loader');
-    const resultSection = document.getElementById('resultSection');
-    const resultCard = document.getElementById('resultCard');
-    const historySection = document.getElementById('historySection');
-    const historyList = document.getElementById('historyList');
-    const savePrompt = document.getElementById('savePrompt');
+// ── STATE ──
+let selectedFile = null;
+let reportHistory = [];
+let authToken = localStorage.getItem('ms_token');
+let currentUser = localStorage.getItem('ms_user');
+let currentLang = 'en';
 
-    let selectedFile = null;
-    let reportHistory = [];
-    let authToken = localStorage.getItem('mediscan_token');
-    let currentUser = localStorage.getItem('mediscan_user');
-    let currentLang = 'en';
+if (authToken && currentUser) {
+  updateUILoggedIn(currentUser);
+  loadServerHistory();
+}
 
-    if (authToken && currentUser) updateUILoggedIn(currentUser);
+// ── I18N ──
+const T = {
+  en: {
+    eyebrow:'AI-Powered Medical Analysis', h1a:'Understand your', h1b:'medical reports', h1c:'in plain language',
+    sub:'Upload any blood test, lab result, or X-ray report. Get a clear, compassionate explanation — powered by advanced AI.',
+    s1:'Report types', s2:'Analysis time', s3:'Languages',
+    uploadTitle:'Drop your medical report here', uploadSub:'Supports PDF and images — blood tests, lab results, X-rays & more',
+    btnChoose:'Choose file', analyzeBtn:'Analyze report',
+    step1:'Extracting text from file', step2:'Analyzing with Groq AI', step3:'Preparing your report',
+    disclaimer:'MediScan AI is for informational purposes only. Always consult a qualified healthcare professional.',
+    resultTitle:'Analysis complete', resultBadge:'AI Verified', btnDownload:'Download',
+    saveTitle:'Save to your account', saveSub:'Sign in to keep your report history accessible anytime.',
+    btnSave:'Save report', btnDismiss:'Dismiss',
+    btnSignIn:'Sign in', btnSignUp:'Get started', btnLogout:'Logout',
+    historyTitle:'Recent reports', btnReset:'↩ Analyze another report', langBtn:'हिंदी',
+    navPill:'Groq AI · Online',
+    modalTitle:'Welcome back', modalSub:'Sign in to save and access your report history.',
+    ocrNote:'Image detected — Tesseract OCR will extract text before AI analysis. For best results, use a clear, well-lit photo with all text visible.',
+  },
+  hi: {
+    eyebrow:'AI-संचालित चिकित्सा विश्लेषण', h1a:'अपनी', h1b:'मेडिकल रिपोर्ट', h1c:'आसानी से समझें',
+    sub:'कोई भी ब्लड टेस्ट, लैब रिपोर्ट अपलोड करें और AI की मदद से सरल भाषा में समझें।',
+    s1:'रिपोर्ट प्रकार', s2:'विश्लेषण समय', s3:'भाषाएं',
+    uploadTitle:'अपनी मेडिकल रिपोर्ट यहाँ डालें', uploadSub:'PDF और इमेज — ब्लड टेस्ट, X-ray, लैब रिपोर्ट',
+    btnChoose:'फ़ाइल चुनें', analyzeBtn:'रिपोर्ट विश्लेषण करें',
+    step1:'फ़ाइल से टेक्स्ट निकाल रहे हैं', step2:'Groq AI से विश्लेषण हो रहा है', step3:'आपकी रिपोर्ट तैयार हो रही है',
+    disclaimer:'MediScan AI केवल सूचनात्मक उद्देश्यों के लिए है। हमेशा योग्य चिकित्सक से परामर्श करें।',
+    resultTitle:'विश्लेषण पूर्ण', resultBadge:'AI सत्यापित', btnDownload:'डाउनलोड',
+    saveTitle:'अपने अकाउंट में सेव करें', saveSub:'रिपोर्ट हिस्ट्री हमेशा एक्सेस करने के लिए लॉगिन करें।',
+    btnSave:'रिपोर्ट सेव करें', btnDismiss:'बंद करें',
+    btnSignIn:'लॉग इन', btnSignUp:'शुरू करें', btnLogout:'लॉग आउट',
+    historyTitle:'हाल की रिपोर्टें', btnReset:'↩ दूसरी रिपोर्ट विश्लेषण करें', langBtn:'English',
+    navPill:'Groq AI · ऑनलाइन',
+    modalTitle:'वापसी पर स्वागत है', modalSub:'अपनी रिपोर्ट हिस्ट्री सेव करने के लिए साइन इन करें।',
+    ocrNote:'इमेज मिली — AI विश्लेषण से पहले Tesseract OCR टेक्स्ट निकालेगा। सबसे अच्छे परिणाम के लिए साफ, अच्छी रोशनी वाली फोटो अपलोड करें।',
+  }
+};
 
-    const translations = {
-        en: {
-            heroBadge: 'AI-Powered Medical Analysis',
-            heroTitle: 'Understand Your',
-            heroSpan: 'Medical Reports',
-            heroInstantly: 'Instantly',
-            heroSubtitle: 'Upload any medical report and get a clear, simple explanation powered by advanced AI — no medical degree required.',
-            uploadTitle: 'Drop your medical report here',
-            uploadSubtitle: 'Supports PDF files — Blood tests, X-ray reports, Lab results & more',
-            btnChooseFile: 'Choose File',
-            analyzeBtn: 'Analyze Report',
-            loaderText: 'Analyzing your report with Groq AI...',
-            disclaimer: 'MediScan AI is for informational purposes only. Always consult a qualified healthcare professional for medical advice.',
-            resultTitle: 'Analysis Complete',
-            resultBadge: 'AI Verified',
-            btnDownload: 'Download Analysis',
-            btnAnalyzeAnother: 'Analyze Another Report',
-            historyTitle: 'Recent Reports',
-            savePromptTitle: 'Save this report to your account',
-            savePromptSubtitle: 'Login or sign up to keep your report history permanently — access it anytime.',
-            btnSaveLogin: 'Save Report',
-            btnDismiss: 'Dismiss',
-            btnSignIn: 'Sign In',
-            btnSignUp: 'Sign Up',
-            btnLogout: 'Logout',
-            modalTitle: 'Welcome to MediScan AI',
-            modalSubtitle: 'Sign in to save your report history permanently',
-            stat1: 'Report Types Supported',
-            stat2: 'Accuracy Rate',
-            stat3: 'Analysis Time',
-            langBtn: 'हिंदी',
-            navBadge: 'Powered by Groq AI',
-            footerText: '© 2025 MediScan AI — Built by Rishav Kumar Singh'
-        },
-        hi: {
-            heroBadge: 'AI-संचालित चिकित्सा विश्लेषण',
-            heroTitle: 'अपनी',
-            heroSpan: 'मेडिकल रिपोर्ट',
-            heroInstantly: 'तुरंत समझें',
-            heroSubtitle: 'कोई भी मेडिकल रिपोर्ट अपलोड करें और उन्नत AI द्वारा संचालित स्पष्ट, सरल व्याख्या प्राप्त करें।',
-            uploadTitle: 'अपनी मेडिकल रिपोर्ट यहाँ डालें',
-            uploadSubtitle: 'PDF फ़ाइलें समर्थित — रक्त परीक्षण, X-ray रिपोर्ट, लैब परिणाम और अधिक',
-            btnChooseFile: 'फ़ाइल चुनें',
-            analyzeBtn: 'रिपोर्ट विश्लेषण करें',
-            loaderText: 'Groq AI के साथ आपकी रिपोर्ट का विश्लेषण हो रहा है...',
-            disclaimer: 'MediScan AI केवल सूचनात्मक उद्देश्यों के लिए है। हमेशा एक योग्य स्वास्थ्य सेवा पेशेवर से परामर्श करें।',
-            resultTitle: 'विश्लेषण पूर्ण',
-            resultBadge: 'AI सत्यापित',
-            btnDownload: 'विश्लेषण डाउनलोड करें',
-            btnAnalyzeAnother: 'दूसरी रिपोर्ट विश्लेषण करें',
-            historyTitle: 'हाल की रिपोर्टें',
-            savePromptTitle: 'इस रिपोर्ट को अपने अकाउंट में सेव करें',
-            savePromptSubtitle: 'अपनी रिपोर्ट हिस्ट्री स्थायी रूप से रखने के लिए लॉगिन करें।',
-            btnSaveLogin: 'रिपोर्ट सेव करें',
-            btnDismiss: 'बंद करें',
-            btnSignIn: 'लॉग इन',
-            btnSignUp: 'साइन अप',
-            btnLogout: 'लॉग आउट',
-            modalTitle: 'MediScan AI में आपका स्वागत है',
-            modalSubtitle: 'अपनी रिपोर्ट हिस्ट्री सेव करने के लिए साइन इन करें',
-            stat1: 'समर्थित रिपोर्ट प्रकार',
-            stat2: 'सटीकता दर',
-            stat3: 'विश्लेषण समय',
-            langBtn: 'English',
-            navBadge: 'Groq AI द्वारा संचालित',
-            footerText: '© 2025 MediScan AI — ऋषव कुमार सिंह द्वारा निर्मित'
-        }
+function applyLang() {
+  const t = T[currentLang];
+  const s = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+  s('eyebrowText', t.eyebrow); s('h1Line1', t.h1a); s('h1Line2', t.h1b); s('h1Line3', t.h1c);
+  s('heroSub', t.sub); s('stat1Lbl', t.s1); s('stat2Lbl', t.s2); s('stat3Lbl', t.s3);
+  s('uploadTitle', t.uploadTitle); s('uploadSub', t.uploadSub); s('btnChooseText', t.btnChoose);
+  s('analyzeBtnText', t.analyzeBtn); s('step1', t.step1); s('step2', t.step2); s('step3', t.step3);
+  s('disclaimerText', t.disclaimer); s('resultTitle', t.resultTitle); s('resultBadge', t.resultBadge);
+  s('btnDownloadText', t.btnDownload); s('saveTitle', t.saveTitle); s('saveSub', t.saveSub);
+  s('btnSave', t.btnSave); s('btnDismiss', t.btnDismiss);
+  s('btnSignIn', t.btnSignIn); s('btnSignUp', t.btnSignUp); s('btnLogout', t.btnLogout);
+  s('historyTitle', t.historyTitle); s('btnResetText', t.btnReset); s('langBtn', t.langBtn);
+  s('navPill', t.navPill); s('modalTitle', t.modalTitle); s('modalSub', t.modalSub);
+  s('ocrNoteText', t.ocrNote);
+}
+
+function toggleLanguage() { currentLang = currentLang === 'en' ? 'hi' : 'en'; applyLang(); }
+
+// ── DRAG & DROP ──
+const IMAGE_EXTS = ['jpg','jpeg','png','bmp','tiff','tif','webp'];
+
+function isImageFile(f) {
+  const ext = f.name.split('.').pop().toLowerCase();
+  return IMAGE_EXTS.includes(ext) || f.type.startsWith('image/');
+}
+
+function ev(e, type) {
+  e.preventDefault();
+  const card = document.getElementById('uploadCard');
+  if (type === 'dragover') card.classList.add('dragover');
+  else if (type === 'dragleave') card.classList.remove('dragover');
+  else if (type === 'drop') {
+    card.classList.remove('dragover');
+    const f = e.dataTransfer.files[0];
+    if (f && (f.type === 'application/pdf' || isImageFile(f))) handleFile(f);
+  }
+}
+document.getElementById('fileInput').addEventListener('change', e => { if(e.target.files[0]) handleFile(e.target.files[0]); });
+
+function handleFile(f) {
+  selectedFile = f;
+  const isPdf = f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf');
+  const ext = f.name.split('.').pop().toUpperCase();
+
+  document.getElementById('fileName').textContent = f.name;
+  document.getElementById('fileSize').textContent = (f.size / 1024).toFixed(0) + ' KB';
+  document.getElementById('fileBar').classList.add('show');
+  document.getElementById('analyzeBtn').classList.add('show');
+
+  const iconEl = document.getElementById('fileIconSm');
+  const tagEl  = document.getElementById('fileTypeTag');
+  const ocrNote = document.getElementById('ocrNote');
+  const imgPreviewWrap = document.getElementById('imgPreviewWrap');
+
+  if (isPdf) {
+    iconEl.className = 'file-icon-sm file-icon-pdf';
+    iconEl.innerHTML = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke-width:2;stroke:#f87171;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+    tagEl.className = 'file-type-tag tag-pdf';
+    tagEl.textContent = 'PDF';
+    ocrNote.classList.remove('show');
+    imgPreviewWrap.classList.remove('show');
+  } else {
+    iconEl.className = 'file-icon-sm file-icon-img';
+    iconEl.innerHTML = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke-width:2;stroke:#34d399;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+    tagEl.className = 'file-type-tag tag-img';
+    tagEl.textContent = ext;
+    ocrNote.classList.add('show');
+    // Show image preview
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('imgPreview').src = e.target.result;
+      imgPreviewWrap.classList.add('show');
     };
+    reader.readAsDataURL(f);
+  }
+}
 
-    function toggleLanguage() {
-        currentLang = currentLang === 'en' ? 'hi' : 'en';
-        applyTranslations();
+// ── ANALYZE ──
+async function analyzeReport() {
+  if (!selectedFile) return;
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  document.getElementById('loader').classList.add('show');
+  document.getElementById('resultWrapper').classList.remove('show');
+  document.getElementById('savePrompt').classList.remove('show');
+  document.getElementById('btnReset').classList.remove('show');
+
+  const fd = new FormData();
+  fd.append('file', selectedFile);
+  if (authToken) fd.append('token', authToken);
+  fd.append('language', currentLang);
+
+  try {
+    const res = await fetch('/analyze', { method:'POST', body:fd });
+    const data = await res.json();
+    document.getElementById('loader').classList.remove('show');
+
+    if (data.error) {
+      renderResult('<div style="color:var(--danger)">Error: ' + data.error + '</div>');
+    } else {
+      renderResult(data.analysis);
+      saveToHistory(selectedFile.name, data.analysis);
+      if (!authToken) document.getElementById('savePrompt').classList.add('show');
     }
+    document.getElementById('resultWrapper').classList.add('show');
+    document.getElementById('btnReset').classList.add('show');
+    document.getElementById('resultWrapper').scrollIntoView({ behavior:'smooth', block:'start' });
+  } catch(err) {
+    document.getElementById('loader').classList.remove('show');
+    renderResult('<div style="color:var(--danger)">Something went wrong. Please try again.</div>');
+    document.getElementById('resultWrapper').classList.add('show');
+  }
+  btn.disabled = false;
+}
 
-    function applyTranslations() {
-        const t = translations[currentLang];
-        document.getElementById('heroBadge').textContent = t.heroBadge;
-        document.getElementById('heroTitle').innerHTML = t.heroTitle + '<br><span id="heroSpan">' + t.heroSpan + '</span><br>' + t.heroInstantly;
-        document.getElementById('heroSubtitle').textContent = t.heroSubtitle;
-        document.getElementById('uploadTitle').textContent = t.uploadTitle;
-        document.getElementById('uploadSubtitle').textContent = t.uploadSubtitle;
-        document.getElementById('btnChooseFile').textContent = t.btnChooseFile;
-        document.getElementById('analyzeBtn').textContent = t.analyzeBtn;
-        document.getElementById('loaderText').innerHTML = t.loaderText.replace('Groq AI', '<span>Groq AI</span>');
-        document.getElementById('disclaimerText').textContent = t.disclaimer;
-        document.getElementById('resultTitle').textContent = t.resultTitle;
-        document.getElementById('resultBadge').textContent = t.resultBadge;
-        document.getElementById('btnDownload').textContent = t.btnDownload;
-        document.getElementById('btnAnalyzeAnother').textContent = t.btnAnalyzeAnother;
-        document.getElementById('historyTitle').textContent = t.historyTitle;
-        document.getElementById('savePromptTitle').textContent = t.savePromptTitle;
-        document.getElementById('savePromptSubtitle').textContent = t.savePromptSubtitle;
-        document.getElementById('btnSaveLogin').textContent = t.btnSaveLogin;
-        document.getElementById('btnDismiss').textContent = t.btnDismiss;
-        document.getElementById('btnSignIn').textContent = t.btnSignIn;
-        document.getElementById('btnSignUp').textContent = t.btnSignUp;
-        document.getElementById('btnLogout').textContent = t.btnLogout;
-        document.getElementById('modalTitle').textContent = t.modalTitle;
-        document.getElementById('modalSubtitle').textContent = t.modalSubtitle;
-        document.getElementById('stat1').textContent = t.stat1;
-        document.getElementById('stat2').textContent = t.stat2;
-        document.getElementById('stat3').textContent = t.stat3;
-        document.getElementById('langBtn').textContent = t.langBtn;
-        document.getElementById('navBadge').textContent = t.navBadge;
-        document.getElementById('footerText').textContent = t.footerText;
+// ── SMART RENDER: parse sections from markdown ──
+function renderResult(text) {
+  const card = document.getElementById('resultCard');
 
-        const heroSpan = document.getElementById('heroSpan');
-        if (heroSpan) {
-            heroSpan.style.background = 'linear-gradient(135deg, #4f8ef7, #7c3aed)';
-            heroSpan.style.webkitBackgroundClip = 'text';
-            heroSpan.style.webkitTextFillColor = 'transparent';
+  // Try to parse into sections
+  const sectionDefs = [
+    { keys:['Simple Summary','सरल सारांश','Summary'], dot:'dot-blue', label:'Summary' },
+    { keys:['Key Findings','मुख्य निष्कर्ष','Findings'], dot:'dot-purple', label:'Key Findings' },
+    { keys:['Risk Flags','जोखिम चेतावनी','Risk'], dot:'dot-red', label:'Risk Flags' },
+    { keys:['Positive Findings','सकारात्मक निष्कर्ष','Positive'], dot:'dot-green', label:'Positive Findings' },
+    { keys:['Recommendations','सिफारिशें','Recommend'], dot:'dot-amber', label:'Recommendations' },
+    { keys:['Urgency Level','तात्कालिकता स्तर','Urgency'], dot:'dot-gray', label:'Urgency Level' },
+  ];
+
+  // Split text by **Section:** pattern
+  const parts = text.split(/\n(?=\*\*[^*]+\*\*)/);
+  if (parts.length > 2) {
+    let html = '';
+    parts.forEach(part => {
+      const titleMatch = part.match(/^\*\*([^*]+)\*\*/);
+      if (!titleMatch) {
+        if (part.trim()) html += renderBlock(part, 'dot-gray', 'Overview');
+        return;
+      }
+      const rawTitle = titleMatch[1].replace(/^\d+\.\s*/, '').trim();
+      const body = part.replace(/^\*\*[^*]+\*\*[:\s]*/, '').trim();
+      let dot = 'dot-gray', label = rawTitle;
+      for (const sd of sectionDefs) {
+        if (sd.keys.some(k => rawTitle.toLowerCase().includes(k.toLowerCase()))) {
+          dot = sd.dot; label = sd.label; break;
         }
-    }
-
-    function openModal(tab) {
-        document.getElementById('modalOverlay').classList.add('show');
-        switchTab(tab);
-    }
-
-    function closeModal() {
-        document.getElementById('modalOverlay').classList.remove('show');
-    }
-
-    function switchTab(tab) {
-        document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
-        document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
-        document.getElementById('loginTab').classList.toggle('active', tab === 'login');
-        document.getElementById('registerTab').classList.toggle('active', tab === 'register');
-    }
-
-    async function handleLogin() {
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
-        const errorEl = document.getElementById('loginError');
-        if (!email || !password) { errorEl.textContent = 'Please fill in all fields'; errorEl.classList.add('show'); return; }
-        const formData = new FormData();
-        formData.append('username', email);
-        formData.append('password', password);
-        try {
-            const res = await fetch('/token', { method: 'POST', body: formData });
-            const data = await res.json();
-            if (!res.ok) { errorEl.textContent = data.detail || 'Invalid email or password'; errorEl.classList.add('show'); return; }
-            authToken = data.access_token;
-            localStorage.setItem('mediscan_token', authToken);
-            localStorage.setItem('mediscan_user', data.name);
-            updateUILoggedIn(data.name);
-            closeModal();
-            dismissSavePrompt();
-            loadServerHistory();
-        } catch (err) { errorEl.textContent = 'Something went wrong. Try again.'; errorEl.classList.add('show'); }
-    }
-
-    async function handleRegister() {
-        const name = document.getElementById('registerName').value;
-        const email = document.getElementById('registerEmail').value;
-        const password = document.getElementById('registerPassword').value;
-        const errorEl = document.getElementById('registerError');
-        if (!name || !email || !password) { errorEl.textContent = 'Please fill in all fields'; errorEl.classList.add('show'); return; }
-        try {
-            const res = await fetch('/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, password }) });
-            const data = await res.json();
-            if (!res.ok) { errorEl.textContent = data.detail || 'Registration failed'; errorEl.classList.add('show'); return; }
-            authToken = data.access_token;
-            localStorage.setItem('mediscan_token', authToken);
-            localStorage.setItem('mediscan_user', data.name);
-            updateUILoggedIn(data.name);
-            closeModal();
-            dismissSavePrompt();
-        } catch (err) { errorEl.textContent = 'Something went wrong. Try again.'; errorEl.classList.add('show'); }
-    }
-
-    function updateUILoggedIn(name) {
-        document.getElementById('authButtons').style.display = 'none';
-        document.getElementById('userInfo').classList.add('show');
-        document.getElementById('userName').textContent = name;
-        document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
-        currentUser = name;
-    }
-
-    function handleLogout() {
-        authToken = null; currentUser = null;
-        localStorage.removeItem('mediscan_token');
-        localStorage.removeItem('mediscan_user');
-        document.getElementById('authButtons').style.display = 'flex';
-        document.getElementById('userInfo').classList.remove('show');
-        reportHistory = [];
-        historySection.style.display = 'none';
-        historyList.innerHTML = '';
-    }
-
-    async function loadServerHistory() {
-        if (!authToken) return;
-        try {
-            const res = await fetch('/history', { headers: { 'Authorization': 'Bearer ' + authToken } });
-            const data = await res.json();
-            if (data.history && data.history.length > 0) {
-                reportHistory = data.history.map(h => ({ fileName: h.file_name, analysis: h.analysis, date: new Date(h.date).toLocaleString() }));
-                renderHistory();
-            }
-        } catch (err) {}
-    }
-
-    function showSavePrompt() {
-        if (!authToken) savePrompt.classList.add('show');
-    }
-
-    function dismissSavePrompt() {
-        savePrompt.classList.remove('show');
-    }
-
-    uploadBox.addEventListener('dragover', (e) => { e.preventDefault(); uploadBox.classList.add('dragover'); });
-    uploadBox.addEventListener('dragleave', () => { uploadBox.classList.remove('dragover'); });
-    uploadBox.addEventListener('drop', (e) => {
-        e.preventDefault(); uploadBox.classList.remove('dragover');
-        const file = e.dataTransfer.files[0];
-        if (file && file.type === 'application/pdf') handleFile(file);
+      }
+      html += renderBlock(body, dot, rawTitle);
     });
-    fileInput.addEventListener('change', (e) => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+    card.innerHTML = html;
+  } else {
+    // Fallback: render as raw with bold/bullet parsing
+    card.innerHTML = '<div class="result-raw">' + formatText(text) + '</div>';
+  }
+}
 
-    function handleFile(file) {
-        selectedFile = file;
-        fileName.textContent = file.name;
-        fileSelected.classList.add('show');
-        analyzeBtn.classList.add('show');
-    }
+function renderBlock(body, dot, label) {
+  return `<div class="result-section-block">
+    <div class="result-section-label"><div class="section-dot ${dot}"></div>${label}</div>
+    <div class="result-section-body">${formatText(body)}</div>
+  </div>`;
+}
 
-    async function analyzeReport() {
-        if (!selectedFile) return;
-        analyzeBtn.disabled = true;
-        loader.classList.add('show');
-        resultSection.classList.remove('show');
-        savePrompt.classList.remove('show');
+function formatText(t) {
+  return t
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^[\*\-•]\s+(.+)/gm, '<div style="display:flex;gap:8px;margin-bottom:4px"><span style="color:var(--text3);margin-top:3px">›</span><span>$1</span></div>')
+    .replace(/\n/g, '<br>');
+}
 
-        const formData = new FormData();
-        formData.append('file', selectedFile);
-        if (authToken) formData.append('token', authToken);
-        formData.append('language', currentLang);
+// ── HISTORY ──
+function saveToHistory(name, analysis) {
+  reportHistory.unshift({ fileName:name, analysis, date: new Date().toLocaleString() });
+  if (reportHistory.length > 10) reportHistory.pop();
+  renderHistory();
+}
 
-        try {
-            const response = await fetch('/analyze', { method: 'POST', body: formData });
-            const data = await response.json();
-            loader.classList.remove('show');
-
-            if (data.error) {
-                resultCard.innerHTML = 'Error: ' + data.error;
-            } else {
-                resultCard.innerHTML = data.analysis
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/^\* (.+)/gm, '• $1')
-                    .replace(/\n/g, '<br>');
-                saveToHistory(selectedFile.name, data.analysis);
-                showSavePrompt();
-            }
-
-            resultSection.classList.add('show');
-            resultSection.scrollIntoView({ behavior: 'smooth' });
-        } catch (err) {
-            loader.classList.remove('show');
-            resultCard.innerHTML = 'Something went wrong. Please try again.';
-            resultSection.classList.add('show');
-        }
-        analyzeBtn.disabled = false;
-    }
-
-    function saveToHistory(name, analysis) {
-        reportHistory.unshift({ fileName: name, analysis: analysis, date: new Date().toLocaleString() });
-        if (reportHistory.length > 10) reportHistory.pop();
-        renderHistory();
-    }
-
-    function renderHistory() {
-        historySection.style.display = 'block';
-        historyList.innerHTML = reportHistory.map((entry, index) => `
-            <div class="history-item" onclick="loadHistory(${index})">
-                <div class="history-icon">📋</div>
-                <div>
-                    <div class="history-name">${entry.fileName}</div>
-                    <div class="history-date">${entry.date}</div>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    function loadHistory(index) {
-        const entry = reportHistory[index];
-        resultCard.innerHTML = entry.analysis
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/^\* (.+)/gm, '• $1')
-            .replace(/\n/g, '<br>');
-        resultSection.classList.add('show');
-        resultSection.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function exportReport() {
-        const content = resultCard.innerHTML;
-        const isHindi = currentLang === 'hi';
-
-        const htmlContent = `<!DOCTYPE html>
-<html lang="${currentLang}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediScan AI - ${isHindi ? 'चिकित्सा रिपोर्ट विश्लेषण' : 'Medical Report Analysis'}</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #f8fafc; color: #1a1a2e; }
-        .header { background: linear-gradient(135deg, #4f8ef7, #7c3aed); color: white; padding: 30px 40px; }
-        .header h1 { font-size: 28px; margin-bottom: 6px; }
-        .header p { opacity: 0.85; font-size: 14px; margin: 4px 0; }
-        .body { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
-        .content { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 36px; line-height: 1.9; font-size: 15px; }
-        .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #94a3b8; padding-bottom: 40px; }
-        strong { color: #1e293b; font-weight: 700; }
-        br { display: block; margin: 4px 0; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>MediScan AI</h1>
-        <p>${isHindi ? 'चिकित्सा रिपोर्ट विश्लेषण' : 'Medical Report Analysis'}</p>
-        <p>${isHindi ? 'तैयार किया गया:' : 'Generated:'} ${new Date().toLocaleString()}</p>
+function renderHistory() {
+  const wrap = document.getElementById('historyWrapper');
+  const grid = document.getElementById('historyGrid');
+  wrap.style.display = 'block';
+  grid.innerHTML = reportHistory.map((e, i) => `
+    <div class="history-item" onclick="loadHistory(${i})">
+      <div class="history-file-icon">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>
+      <div class="history-meta">
+        <div class="history-name">${e.fileName}</div>
+        <div class="history-date">${e.date}</div>
+      </div>
+      <div class="history-arrow">›</div>
     </div>
-    <div class="body">
-        <div class="content">${content}</div>
-        <div class="footer">MediScan AI — ${isHindi ? 'केवल सूचनात्मक उद्देश्यों के लिए। हमेशा अपने डॉक्टर से परामर्श करें।' : 'For informational purposes only. Always consult your doctor.'}</div>
-    </div>
-</body>
-</html>`;
+  `).join('');
+}
 
-        const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        
-        // Open in new tab and trigger print dialog for PDF save
-        const newTab = window.open(url, '_blank');
-        if (newTab) {
-            newTab.onload = function() {
-                setTimeout(() => {
-                    newTab.print();
-                }, 500);
-            };
-        } else {
-            // Fallback: download file if popup blocked
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = isHindi ? 'MediScan-विश्लेषण.html' : 'MediScan-Analysis.html';
-            a.click();
-            URL.revokeObjectURL(url);
-            alert(isHindi 
-                ? 'फ़ाइल डाउनलोड हो गई। इसे ब्राउज़र में खोलें और Ctrl+P दबाकर PDF में सेव करें।'
-                : 'File downloaded. Open it in your browser and press Ctrl+P to save as PDF.'
-            );
-        }
-    }
+function loadHistory(i) {
+  renderResult(reportHistory[i].analysis);
+  document.getElementById('resultWrapper').classList.add('show');
+  document.getElementById('resultWrapper').scrollIntoView({ behavior:'smooth' });
+}
 
-    function resetApp() {
-        selectedFile = null;
-        fileInput.value = '';
-        fileSelected.classList.remove('show');
-        analyzeBtn.classList.remove('show');
-        analyzeBtn.disabled = false;
-        resultSection.classList.remove('show');
-        savePrompt.classList.remove('show');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+async function loadServerHistory() {
+  if (!authToken) return;
+  try {
+    const res = await fetch('/history', { headers:{'Authorization':'Bearer '+authToken} });
+    const data = await res.json();
+    if (data.history && data.history.length > 0) {
+      reportHistory = data.history.map(h => ({ fileName:h.file_name, analysis:h.analysis, date: new Date(h.date).toLocaleString() }));
+      renderHistory();
     }
+  } catch(e) {}
+}
+
+// ── AUTH ──
+function openModal(tab) { document.getElementById('modalOverlay').classList.add('show'); switchTab(tab); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+function switchTab(tab) {
+  document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+  document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+  document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+}
+
+async function handleLogin() {
+  const email = document.getElementById('loginEmail').value;
+  const pass = document.getElementById('loginPassword').value;
+  const err = document.getElementById('loginError');
+  if (!email || !pass) { err.textContent='Please fill in all fields'; err.classList.add('show'); return; }
+  const fd = new FormData(); fd.append('username', email); fd.append('password', pass);
+  try {
+    const res = await fetch('/token', { method:'POST', body:fd });
+    const data = await res.json();
+    if (!res.ok) { err.textContent = data.detail || 'Invalid credentials'; err.classList.add('show'); return; }
+    setLoggedIn(data.access_token, data.name);
+    closeModal(); dismissSave(); loadServerHistory();
+  } catch(e) { err.textContent='Something went wrong.'; err.classList.add('show'); }
+}
+
+async function handleRegister() {
+  const name = document.getElementById('regName').value;
+  const email = document.getElementById('regEmail').value;
+  const pass = document.getElementById('regPassword').value;
+  const err = document.getElementById('regError');
+  if (!name || !email || !pass) { err.textContent='Please fill in all fields'; err.classList.add('show'); return; }
+  try {
+    const res = await fetch('/register', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name,email,password:pass}) });
+    const data = await res.json();
+    if (!res.ok) { err.textContent = data.detail || 'Registration failed'; err.classList.add('show'); return; }
+    setLoggedIn(data.access_token, data.name);
+    closeModal(); dismissSave();
+  } catch(e) { err.textContent='Something went wrong.'; err.classList.add('show'); }
+}
+
+function setLoggedIn(token, name) {
+  authToken = token; currentUser = name;
+  localStorage.setItem('ms_token', token);
+  localStorage.setItem('ms_user', name);
+  updateUILoggedIn(name);
+}
+
+function updateUILoggedIn(name) {
+  document.getElementById('authBtns').style.display = 'none';
+  document.getElementById('userInfo').classList.add('show');
+  document.getElementById('userName').textContent = name;
+  document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+}
+
+function handleLogout() {
+  authToken = null; currentUser = null;
+  localStorage.removeItem('ms_token'); localStorage.removeItem('ms_user');
+  document.getElementById('authBtns').style.display = 'flex';
+  document.getElementById('userInfo').classList.remove('show');
+  reportHistory = [];
+  document.getElementById('historyWrapper').style.display = 'none';
+}
+
+function dismissSave() { document.getElementById('savePrompt').classList.remove('show'); }
+
+// ── EXPORT ──
+function exportReport() {
+  const content = document.getElementById('resultCard').innerHTML;
+  const isHi = currentLang === 'hi';
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>MediScan AI</title>
+<style>body{font-family:Georgia,serif;background:#f9fafb;color:#111;max-width:720px;margin:0 auto;padding:40px 20px}
+.header{background:linear-gradient(110deg,#3b82f6,#6366f1);color:#fff;padding:28px 32px;border-radius:12px;margin-bottom:32px}
+.header h1{font-size:26px;margin-bottom:4px}.header p{opacity:.8;font-size:13px}
+.section{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:24px;margin-bottom:16px}
+.label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#6b7280;margin-bottom:8px;font-family:Arial,sans-serif}
+.body{font-size:15px;line-height:1.8;color:#374151}strong{color:#111;font-weight:600}
+.footer{text-align:center;font-size:12px;color:#9ca3af;margin-top:24px}
+</style></head><body>
+<div class="header"><h1>MediScan AI</h1><p>${isHi?'मेडिकल रिपोर्ट विश्लेषण':'Medical Report Analysis'} · ${new Date().toLocaleString()}</p></div>
+${content}
+<div class="footer">MediScan AI · ${isHi?'केवल सूचनात्मक उद्देश्यों के लिए। हमेशा अपने डॉक्टर से परामर्श करें।':'For informational purposes only. Always consult your doctor.'}</div>
+</body></html>`;
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const tab = window.open(url, '_blank');
+  if (tab) { tab.onload = () => setTimeout(()=>tab.print(), 400); }
+  else {
+    const a = document.createElement('a'); a.href=url;
+    a.download = 'MediScan-Analysis.html'; a.click();
+    URL.revokeObjectURL(url);
+  }
+}
+
+// ── RESET ──
+function resetApp() {
+  selectedFile = null;
+  document.getElementById('fileInput').value = '';
+  document.getElementById('fileBar').classList.remove('show');
+  document.getElementById('imgPreviewWrap').classList.remove('show');
+  document.getElementById('ocrNote').classList.remove('show');
+  document.getElementById('analyzeBtn').classList.remove('show');
+  document.getElementById('analyzeBtn').disabled = false;
+  document.getElementById('resultWrapper').classList.remove('show');
+  document.getElementById('savePrompt').classList.remove('show');
+  document.getElementById('btnReset').classList.remove('show');
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
 </script>
-
 </body>
 </html>
