@@ -105,19 +105,14 @@ async def analyze_report(
     file_ext = file.filename.split('.')[-1].lower() if file.filename else ""
 
     if file_ext in IMAGE_EXTENSIONS:
-        # OCR for image files
         try:
             image = Image.open(io.BytesIO(contents))
-            # Convert to RGB if needed
             if image.mode not in ('RGB', 'L'):
                 image = image.convert('RGB')
             text = pytesseract.image_to_string(image)
-            print(f"DEBUG: OCR extracted {len(text)} characters")
         except Exception as e:
-            print(f"DEBUG: OCR error: {e}")
             return {"error": f"Could not process image: {str(e)}"}
     else:
-        # PDF extraction
         try:
             pdf = fitz.open(stream=contents, filetype="pdf")
             for page in pdf:
@@ -128,7 +123,6 @@ async def analyze_report(
     if not text.strip():
         return {"error": "Could not extract text from file. For images, ensure the photo is clear and well-lit with visible text."}
 
-    # Step 1: English analysis
     english_prompt = f"""
 You are a senior medical expert with 20 years of experience explaining medical reports to patients.
 
@@ -166,7 +160,6 @@ Medical Report:
     )
     analysis = english_response.choices[0].message.content
 
-    # Step 2: Translate to Hindi if requested
     if language == "hi":
         hindi_prompt = f"""You are a professional Hindi translator. Translate the following medical analysis to Hindi (Devanagari script).
 
@@ -203,6 +196,38 @@ Text to translate:
             pass
 
     return {"analysis": analysis}
+
+@app.post("/chat")
+async def chat_with_report(
+    question: str = Form(...),
+    context: str = Form(...),
+    language: Optional[str] = Form(None)
+):
+    prompt = f"""You are a compassionate medical assistant. The patient has received this medical report analysis:
+
+{context}
+
+The patient is now asking: {question}
+
+Answer their question simply and clearly based on the report analysis above. Be reassuring but honest. Keep your answer under 150 words. Always remind them to consult their doctor for personalized advice."""
+
+    response = client.chat.completions.create(
+        messages=[{"role": "user", "content": prompt}],
+        model="llama-3.3-70b-versatile",
+    )
+    answer = response.choices[0].message.content
+
+    if language == "hi":
+        hindi_prompt = f"""Translate this medical response to Hindi (Devanagari script). Keep medical values and numbers as-is. Only translate the text:
+
+{answer}"""
+        hindi_response = client.chat.completions.create(
+            messages=[{"role": "user", "content": hindi_prompt}],
+            model="llama-3.3-70b-versatile",
+        )
+        answer = hindi_response.choices[0].message.content
+
+    return {"answer": answer}
 
 @app.get("/history")
 async def get_history(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
