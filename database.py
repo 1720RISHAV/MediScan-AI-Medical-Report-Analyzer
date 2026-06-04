@@ -9,14 +9,19 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./mediscan.db")
 
-# Fix for SQLAlchemy + PostgreSQL
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-if DATABASE_URL.startswith("sqlite"):
-    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-else:
-    engine = create_engine(DATABASE_URL)
+try:
+    if DATABASE_URL.startswith("sqlite"):
+        engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+    else:
+        engine = create_engine(DATABASE_URL)
+    DB_AVAILABLE = True
+except Exception as e:
+    print(f"Database connection failed: {e}, falling back to SQLite")
+    engine = create_engine("sqlite:///./mediscan.db", connect_args={"check_same_thread": False})
+    DB_AVAILABLE = True
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -38,7 +43,10 @@ class ReportHistory(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 def create_tables():
-    Base.metadata.create_all(bind=engine)
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        print(f"Table creation error: {e}")
 
 def get_db():
     db = SessionLocal()
