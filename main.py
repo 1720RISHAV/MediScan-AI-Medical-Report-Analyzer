@@ -12,6 +12,7 @@ import pytesseract
 from PIL import Image
 import io
 import os
+import time
 from dotenv import load_dotenv
 from groq import Groq
 from database import create_tables, get_db, User, ReportHistory
@@ -19,7 +20,44 @@ from database import create_tables, get_db, User, ReportHistory
 load_dotenv()
 create_tables()
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+# ── GROQ KEY ROTATION ──
+GROQ_KEYS = [
+    os.getenv("GROQ_API_KEY"),
+    os.getenv("GROQ_API_KEY_2"),
+    os.getenv("GROQ_API_KEY_3"),
+]
+GROQ_KEYS = [k for k in GROQ_KEYS if k]  # Remove None values
+current_key_index = 0
+
+def get_groq_client():
+    global current_key_index
+    return Groq(api_key=GROQ_KEYS[current_key_index])
+
+def rotate_key():
+    global current_key_index
+    current_key_index = (current_key_index + 1) % len(GROQ_KEYS)
+    print(f"Rotated to Groq key {current_key_index + 1}")
+
+def groq_call_with_retry(messages, model="llama-3.3-70b-versatile", max_retries=3):
+    for attempt in range(max_retries):
+        try:
+            client = get_groq_client()
+            response = client.chat.completions.create(
+                messages=messages,
+                model=model,
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            error_str = str(e)
+            if "429" in error_str or "rate_limit" in error_str.lower() or "quota" in error_str.lower():
+                print(f"Rate limit hit on key {current_key_index + 1}, rotating...")
+                rotate_key()
+                wait_time = 2 ** attempt  # Exponential backoff: 1s, 2s, 4s
+                print(f"Waiting {wait_time}s before retry...")
+                time.sleep(wait_time)
+            else:
+                raise e
+    raise Exception("All Groq API keys exhausted. Please try again later.")
 
 SECRET_KEY = "mediscan-secret-key-2025-rishav"
 ALGORITHM = "HS256"
@@ -181,13 +219,12 @@ Medical Report:
 {text[:4000]}
 """
 
-    english_response = client.chat.completions.create(
-        messages=[{"role": "user", "content": english_prompt}],
-        model="llama-3.3-70b-versatile",
-    )
-    analysis = english_response.choices[0].message.content
+    try:
+        analysis = groq_call_with_retry([{"role": "user", "content": english_prompt}])
+    except Exception as e:
+        return {"error": "High traffic — please wait a moment and try again."}
 
-    # Diet & lifestyle recommendations (separate call)
+    # Diet & lifestyle recommendations
     lifestyle_prompt = f"""Based on this medical report analysis, provide exactly:
 - 5 specific diet tips
 - 3 specific exercise tips
@@ -198,15 +235,9 @@ Return ONLY a JSON object in this exact format, nothing else:
 Medical report:
 {text[:2000]}"""
 
-    lifestyle_response = client.chat.completions.create(
-        messages=[{"role": "user", "content": lifestyle_prompt}],
-        model="llama-3.3-70b-versatile",
-    )
-    lifestyle_raw = lifestyle_response.choices[0].message.content
-
     try:
+        lifestyle_raw = groq_call_with_retry([{"role": "user", "content": lifestyle_prompt}])
         import json
-        # Clean up response
         lifestyle_raw = lifestyle_raw.strip()
         if lifestyle_raw.startswith("```"):
             lifestyle_raw = lifestyle_raw.split("```")[1]
@@ -229,11 +260,10 @@ Rules:
 Text to translate:
 {analysis}"""
 
-        hindi_response = client.chat.completions.create(
-            messages=[{"role": "user", "content": hindi_prompt}],
-            model="llama-3.3-70b-versatile",
-        )
-        analysis = hindi_response.choices[0].message.content
+        try:
+            analysis = groq_call_with_retry([{"role": "user", "content": hindi_prompt}])
+        except Exception as e:
+            pass  # Keep English if translation fails
 
     if token:
         try:
@@ -267,21 +297,19 @@ The patient is now asking: {question}
 
 Answer their question simply and clearly based on the report analysis above. Be reassuring but honest. Keep your answer under 150 words. Always remind them to consult their doctor for personalized advice."""
 
-    response = client.chat.completions.create(
-        messages=[{"role": "user", "content": prompt}],
-        model="llama-3.3-70b-versatile",
-    )
-    answer = response.choices[0].message.content
+    try:
+        answer = groq_call_with_retry([{"role": "user", "content": prompt}])
+    except Exception as e:
+        return {"answer": "High traffic — please wait a moment and try again."}
 
     if language == "hi":
         hindi_prompt = f"""Translate this medical response to Hindi (Devanagari script). Keep medical values and numbers as-is. Only translate the text:
 
 {answer}"""
-        hindi_response = client.chat.completions.create(
-            messages=[{"role": "user", "content": hindi_prompt}],
-            model="llama-3.3-70b-versatile",
-        )
-        answer = hindi_response.choices[0].message.content
+        try:
+            answer = groq_call_with_retry([{"role": "user", "content": hindi_prompt}])
+        except:
+            pass
 
     return {"answer": answer}
 
