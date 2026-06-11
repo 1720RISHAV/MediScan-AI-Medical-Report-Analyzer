@@ -355,6 +355,46 @@ async def email_report(
         return {"success": True, "message": "Report sent successfully"}
     except Exception as e:
         return {"success": False, "message": str(e)}
+@app.get("/admin")
+async def admin_page(password: str = None):
+    admin_pass = os.getenv("ADMIN_PASSWORD", "admin123")
+    if password != admin_pass:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    with open("admin.html", "r", encoding="utf-8") as f:
+        return HTMLResponse(f.read())
+
+@app.get("/admin/stats")
+async def admin_stats(password: str = None, db: Session = Depends(get_db)):
+    admin_pass = os.getenv("ADMIN_PASSWORD", "admin123")
+    if password != admin_pass:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    from sqlalchemy import func, cast, Date
+    from datetime import date, timedelta
+    
+    total_users = db.query(User).count()
+    total_reports = db.query(ReportHistory).count()
+    
+    today = date.today()
+    reports_today = db.query(ReportHistory).filter(
+        func.date(ReportHistory.created_at) == today
+    ).count()
+    
+    # Last 7 days
+    daily_data = []
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        count = db.query(ReportHistory).filter(
+            func.date(ReportHistory.created_at) == day
+        ).count()
+        daily_data.append({"date": str(day), "count": count})
+    
+    return {
+        "total_users": total_users,
+        "total_reports": total_reports,
+        "reports_today": reports_today,
+        "daily_data": daily_data
+    }
 @app.get("/history")
 async def get_history(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     records = db.query(ReportHistory).filter(

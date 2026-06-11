@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediScan AI — Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a0f1e; color: #e2e8f0; min-height: 100vh; }
+
+        nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 40px;
+            background: rgba(10,15,30,0.95);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            position: sticky; top: 0; z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; color: #fff; }
+        .logo-icon { width: 28px; height: 28px; background: linear-gradient(135deg, #3b82f6, #6366f1); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; }
+        .admin-badge { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+
+        .login-wrapper { max-width: 400px; margin: 100px auto; padding: 0 20px; }
+        .login-card { background: #0f1629; border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 40px; }
+        .login-card h2 { font-size: 22px; font-weight: 700; color: #e2e8f0; margin-bottom: 8px; }
+        .login-card p { font-size: 13px; color: #64748b; margin-bottom: 24px; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 500; color: #94a3b8; margin-bottom: 6px; }
+        .form-group input {
+            width: 100%; padding: 11px 14px;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px; color: #e2e8f0; font-size: 14px;
+            font-family: 'Inter', sans-serif; outline: none; transition: all 0.2s;
+        }
+        .form-group input:focus { border-color: rgba(59,130,246,0.4); background: rgba(59,130,246,0.04); }
+
+        .btn-login {
+            width: 100%; padding: 13px;
+            background: linear-gradient(110deg, #3b82f6, #6366f1);
+            color: white; border: none; border-radius: 8px;
+            font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; margin-top: 6px;
+        }
+        .btn-login:hover { opacity: 0.9; }
+        .error-msg { color: #ef4444; font-size: 12px; margin-top: 10px; text-align: center; display: none; }
+        .error-msg.show { display: block; }
+
+        .dashboard { padding: 40px; max-width: 1100px; margin: 0 auto; display: none; }
+        .dashboard.show { display: block; }
+
+        .dashboard-header { margin-bottom: 32px; }
+        .dashboard-header h1 { font-size: 26px; font-weight: 700; color: #e2e8f0; margin-bottom: 4px; }
+        .dashboard-header p { font-size: 14px; color: #64748b; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+
+        .stat-card {
+            background: #0f1629; border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px; padding: 24px;
+            transition: all 0.2s;
+        }
+        .stat-card:hover { border-color: rgba(59,130,246,0.3); }
+
+        .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: #64748b; margin-bottom: 12px; }
+        .stat-value { font-size: 36px; font-weight: 700; color: #e2e8f0; margin-bottom: 4px; }
+        .stat-sub { font-size: 12px; color: #64748b; }
+
+        .stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 16px; }
+        .icon-blue { background: rgba(59,130,246,0.15); }
+        .icon-green { background: rgba(16,185,129,0.15); }
+        .icon-purple { background: rgba(124,58,237,0.15); }
+
+        .chart-card {
+            background: #0f1629; border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px; padding: 28px;
+        }
+        .chart-title { font-size: 15px; font-weight: 600; color: #e2e8f0; margin-bottom: 20px; }
+
+        .loading { text-align: center; padding: 60px; color: #64748b; }
+        .spinner { width: 40px; height: 40px; border: 3px solid rgba(59,130,246,0.2); border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .dashboard { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">
+        <div class="logo-icon">M</div>
+        MediScan AI
+    </div>
+    <div class="admin-badge">Admin Dashboard</div>
+</nav>
+
+<!-- Login -->
+<div class="login-wrapper" id="loginWrapper">
+    <div class="login-card">
+        <h2>Admin Access</h2>
+        <p>Enter your admin password to continue.</p>
+        <div class="form-group">
+            <label>Admin Password</label>
+            <input type="password" id="adminPass" placeholder="••••••••" onkeydown="if(event.key==='Enter') login()">
+        </div>
+        <button class="btn-login" onclick="login()">Access Dashboard</button>
+        <div class="error-msg" id="loginError">Incorrect password. Try again.</div>
+    </div>
+</div>
+
+<!-- Dashboard -->
+<div class="dashboard" id="dashboard">
+    <div id="loadingState" class="loading">
+        <div class="spinner"></div>
+        <p>Loading dashboard...</p>
+    </div>
+
+    <div id="dashboardContent" style="display:none;">
+        <div class="dashboard-header">
+            <h1>Dashboard Overview</h1>
+            <p id="lastUpdated">Last updated: —</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon icon-blue">👥</div>
+                <div class="stat-label">Total Users</div>
+                <div class="stat-value" id="totalUsers">—</div>
+                <div class="stat-sub">Registered accounts</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-green">📄</div>
+                <div class="stat-label">Total Reports</div>
+                <div class="stat-value" id="totalReports">—</div>
+                <div class="stat-sub">Reports analyzed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-purple">📅</div>
+                <div class="stat-label">Reports Today</div>
+                <div class="stat-value" id="reportsToday">—</div>
+                <div class="stat-sub">Analyzed today</div>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-title">Reports — Last 7 Days</div>
+            <canvas id="dailyChart" height="80"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    let adminPassword = '';
+    let chart = null;
+
+    async function login() {
+        const pass = document.getElementById('adminPass').value;
+        if (!pass) return;
+        adminPassword = pass;
+
+        document.getElementById('loginWrapper').style.display = 'none';
+        document.getElementById('dashboard').classList.add('show');
+
+        await loadStats();
+    }
+
+    async function loadStats() {
+        try {
+            const res = await fetch(`/admin/stats?password=${encodeURIComponent(adminPassword)}`);
+            if (res.status === 401) {
+                document.getElementById('loginWrapper').style.display = 'block';
+                document.getElementById('dashboard').classList.remove('show');
+                document.getElementById('loginError').classList.add('show');
+                return;
+            }
+            const data = await res.json();
+            renderDashboard(data);
+        } catch(e) {
+            document.getElementById('loadingState').innerHTML = '<p style="color:#ef4444">Failed to load stats. Try again.</p>';
+        }
+    }
+
+    function renderDashboard(data) {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('dashboardContent').style.display = 'block';
+
+        document.getElementById('totalUsers').textContent = data.total_users;
+        document.getElementById('totalReports').textContent = data.total_reports;
+        document.getElementById('reportsToday').textContent = data.reports_today;
+        document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleString();
+
+        const labels = data.daily_data.map(d => {
+            const date = new Date(d.date);
+            return date.toLocaleDateString('en', { month: 'short', day: 'numeric' });
+        });
+        const counts = data.daily_data.map(d => d.count);
+
+        if (chart) chart.destroy();
+
+        const ctx = document.getElementById('dailyChart').getContext('2d');
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Reports',
+                    data: counts,
+                    backgroundColor: 'rgba(59,130,246,0.5)',
+                    borderColor: '#3b82f6',
+                    borderWidth: 2,
+                    borderRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#64748b' }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#64748b', stepSize: 1 },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
