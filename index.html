@@ -990,12 +990,31 @@ nav {
     </div>
     <div class="result-actions">
       <button class="btn-icon" onclick="exportReport()" id="btnDownload">
+        <button class="btn-icon" onclick="showEmailModal()" id="btnEmail">
+    <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+    <span id="btnEmailText">Email</span>
+</button>
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         <span id="btnDownloadText">Download</span>
       </button>
     </div>
   </div>
   <div class="result-card" id="resultCard"></div>
+</div>
+<!-- EMAIL MODAL -->
+<div class="modal-overlay" id="emailModalOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeEmailModal()">✕</button>
+    <h2 id="emailModalTitle">Email Report</h2>
+    <p id="emailModalSub">Send this analysis to your email address.</p>
+    <div class="form-group">
+      <label id="emailLabel">Email Address</label>
+      <input type="email" id="emailInput" placeholder="your@email.com">
+    </div>
+    <button class="btn-submit" onclick="sendEmailReport()" id="btnSendEmail">Send Report</button>
+    <div class="error-msg" id="emailError"></div>
+    <div class="error-msg" id="emailSuccess" style="color: var(--success);"></div>
+  </div>
 </div>
 <!-- LIFESTYLE SECTION -->
 <div class="lifestyle-wrapper" id="lifestyleWrapper">
@@ -1508,6 +1527,59 @@ async function sendChat() {
         document.getElementById(loadingId).remove();
         messages.innerHTML += `<div class="chat-msg chat-msg-ai">Something went wrong. Please try again.</div>`;
     }
+}
+// ── EMAIL ──
+function showEmailModal() {
+    if (!currentAnalysis) return;
+    document.getElementById('emailModalOverlay').classList.add('show');
+    document.getElementById('emailError').classList.remove('show');
+    document.getElementById('emailSuccess').classList.remove('show');
+    document.getElementById('emailInput').value = '';
+}
+
+function closeEmailModal() {
+    document.getElementById('emailModalOverlay').classList.remove('show');
+}
+
+async function sendEmailReport() {
+    const email = document.getElementById('emailInput').value;
+    const errorEl = document.getElementById('emailError');
+    const successEl = document.getElementById('emailSuccess');
+
+    if (!email) {
+        errorEl.textContent = 'Please enter your email address';
+        errorEl.classList.add('show');
+        return;
+    }
+
+    const btn = document.getElementById('btnSendEmail');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    const fd = new FormData();
+    fd.append('email', email);
+    fd.append('analysis', currentAnalysis);
+    fd.append('language', currentLang);
+
+    try {
+        const res = await fetch('/email-report', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data.success) {
+            successEl.textContent = 'Report sent successfully! Check your inbox.';
+            successEl.classList.add('show');
+            errorEl.classList.remove('show');
+            setTimeout(() => closeEmailModal(), 2000);
+        } else {
+            errorEl.textContent = 'Failed to send: ' + data.message;
+            errorEl.classList.add('show');
+        }
+    } catch(e) {
+        errorEl.textContent = 'Something went wrong. Try again.';
+        errorEl.classList.add('show');
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Send Report';
 }
 // ── RESET ──
 function resetApp() {

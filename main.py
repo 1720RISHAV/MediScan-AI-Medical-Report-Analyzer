@@ -312,7 +312,49 @@ Answer their question simply and clearly based on the report analysis above. Be 
             pass
 
     return {"answer": answer}
+@app.post("/email-report")
+async def email_report(
+    email: str = Form(...),
+    analysis: str = Form(...),
+    language: Optional[str] = Form(None)
+):
+    import resend
+    resend.api_key = os.getenv("RESEND_API_KEY")
 
+    subject = "Your MediScan AI Medical Report Analysis" if language != "hi" else "आपकी MediScan AI मेडिकल रिपोर्ट विश्लेषण"
+
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="UTF-8"></head>
+    <body style="font-family: Arial, sans-serif; background: #f8fafc; padding: 40px 20px; color: #1a1a2e;">
+        <div style="max-width: 600px; margin: 0 auto;">
+            <div style="background: linear-gradient(110deg, #3b82f6, #6366f1); padding: 28px 32px; border-radius: 12px; margin-bottom: 24px;">
+                <h1 style="color: white; margin: 0; font-size: 24px;">MediScan AI</h1>
+                <p style="color: rgba(255,255,255,0.85); margin: 6px 0 0; font-size: 14px;">Medical Report Analysis</p>
+            </div>
+            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 28px;">
+                <p style="color: #374151; font-size: 15px; line-height: 1.8;">{analysis.replace(chr(10), '<br>')}</p>
+            </div>
+            <p style="text-align: center; color: #9ca3af; font-size: 12px; margin-top: 20px;">
+                MediScan AI — For informational purposes only. Always consult your doctor.
+            </p>
+        </div>
+    </body>
+    </html>
+    """
+
+    try:
+        params = {
+            "from": "MediScan AI <onboarding@resend.dev>",
+            "to": [email],
+            "subject": subject,
+            "html": html_content,
+        }
+        resend.Emails.send(params)
+        return {"success": True, "message": "Report sent successfully"}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
 @app.get("/history")
 async def get_history(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     records = db.query(ReportHistory).filter(
